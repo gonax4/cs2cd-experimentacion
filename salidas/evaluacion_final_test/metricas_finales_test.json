@@ -1,0 +1,32 @@
+{
+  "regresion_logistica": {
+    "modelo": "Regresion Logistica",
+    "umbral_fijo": 0.67,
+    "accuracy": 0.8478935027607594,
+    "precision": 0.6495798319327731,
+    "recall": 0.5677561513037092,
+    "f1": 0.6059180873995689,
+    "especificidad": 0.9205562964374167,
+    "roc_auc": 0.8433664891278804,
+    "verdaderos_negativos": 9664,
+    "falsos_positivos": 834,
+    "falsos_negativos": 1177,
+    "verdaderos_positivos": 1546
+  },
+  "random_forest": {
+    "modelo": "Random Forest",
+    "umbral_fijo": 0.53,
+    "accuracy": 0.8650631570985553,
+    "precision": 0.7071018967798853,
+    "recall": 0.5886889460154242,
+    "f1": 0.6424849699398798,
+    "especificidad": 0.9367498571156411,
+    "roc_auc": 0.8542472843576102,
+    "verdaderos_negativos": 9834,
+    "falsos_positivos": 664,
+    "falsos_negativos": 1120,
+    "verdaderos_positivos": 1603
+  },
+  "criterio_principal": "F1",
+  "nota_metodologica": "TEST fue utilizado únicamente después de congelar predictores, hiperparámetros y umbrales. Sus resultados no se utilizarán para modificar el procedimiento."
+}

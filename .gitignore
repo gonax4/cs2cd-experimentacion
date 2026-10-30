@@ -1,4 +1,4 @@
-# Entornos y configuraciones locales
+# Entornos, caches, configuraciones locales
 .venv/
 venv/
 __pycache__/
@@ -11,22 +11,22 @@ __pycache__/
 .vscode/
 .idea/
 
-# Datos procesados voluminosos
+# Datos grandes generados por el procesamiento
 /datos/procesado/*.csv
 !/datos/procesado/resumen_particiones.csv
 /datos/crudo/*.parquet
 /datos/crudo/*.arrow
 /datos/crudo/*.csv
 
-# Modelos entrenados
+# Modelos serializados
 /modelos/
 *.joblib
 *.pkl
 
-# Resultados de predicciones de gran tamaño
+# Predicciones por ventana (archivos grandes)
 /salidas/seleccion_umbral/probabilidades_validacion.csv
 /salidas/evaluacion_final_test/predicciones_test.csv
 
-# Archivos comprimidos
+# Copias comprimidas
 *.zip
 *.7z

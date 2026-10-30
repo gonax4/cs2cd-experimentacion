@@ -1,0 +1,16 @@
+{
+  "best_params": {
+    "modelo__C": 1,
+    "modelo__class_weight": "balanced"
+  },
+  "best_mean_cv_f1": 0.6200777996758723,
+  "numero_predictores": 72,
+  "numero_continuas": 61,
+  "numero_binarias": 11,
+  "semilla": 42,
+  "cv": "StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=42)",
+  "scoring": "f1",
+  "solver": "lbfgs",
+  "penalty": "l2",
+  "max_iter": 1000
+}

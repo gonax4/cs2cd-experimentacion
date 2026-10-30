@@ -1,0 +1,73 @@
+caracteristica,coeficiente,magnitud_absoluta,sentido_asociacion,grupo
+kill_wallbang,1.2403020016594473,1.2403020016594473,Positiva,Combate y estados
+kill_headshot,0.7626217077253729,0.7626217077253729,Positiva,Combate y estados
+attacker_vel_media,-0.6228571909497717,0.6228571909497717,Negativa,Movimiento
+weapon_knife_kill,-0.6035488584348963,0.6035488584348963,Negativa,Armas
+victim_noise_proporcion_activo,0.5812641824864718,0.5812641824864718,Positiva,Combate y estados
+delta_z_cambio_media_abs,0.5259293250552823,0.5259293250552823,Positiva,Relación espacial
+weapon_auto_rifle_kill,-0.3939543533527579,0.3939543533527579,Negativa,Armas
+weapon_semi_rifle_proporcion,0.35764017087375993,0.35764017087375993,Positiva,Armas
+delta_x_rango,0.276487019213702,0.276487019213702,Positiva,Relación espacial
+weapon_pistol_kill,0.26484136532909514,0.26484136532909514,Positiva,Armas
+attacker_shot_conteo,-0.24651001627035707,0.24651001627035707,Negativa,Combate y estados
+attacker_shot_proporcion,-0.24651001627033953,0.24651001627033953,Negativa,Combate y estados
+attacker_yaw_delta_media_abs,-0.24008229317338675,0.24008229317338675,Negativa,Apuntado y orientación
+distancia_3d_media,0.23949127776378967,0.23949127776378967,Positiva,Relación espacial
+distancia_3d_cambio_media_abs,-0.23092050530866853,0.23092050530866853,Negativa,Relación espacial
+weapon_smg_kill,-0.22821634758442344,0.22821634758442344,Negativa,Armas
+distancia_3d_min,-0.22657222519064757,0.22657222519064757,Negativa,Relación espacial
+attacker_vel_max,0.21345332930738395,0.21345332930738395,Positiva,Movimiento
+kill_through_smoke,0.21339449934913343,0.21339449934913343,Positiva,Combate y estados
+delta_x_cambio_max_abs,-0.1944428760984537,0.1944428760984537,Negativa,Relación espacial
+kill_attacker_midair,0.18252784098518005,0.18252784098518005,Positiva,Combate y estados
+attacker_yaw_head_delta_kill,0.17092230505508413,0.17092230505508413,Positiva,Apuntado y orientación
+delta_z_rango,-0.16415075844878024,0.16415075844878024,Negativa,Relación espacial
+attacker_yaw_head_delta_media_abs,-0.16393906329396374,0.16393906329396374,Negativa,Apuntado y orientación
+distancia_3d_max,-0.1606692452720743,0.1606692452720743,Negativa,Relación espacial
+weapon_shotgun_proporcion,-0.15756240825925635,0.15756240825925635,Negativa,Armas
+delta_z_cambio_max_abs,-0.15197844821656634,0.15197844821656634,Negativa,Relación espacial
+attacker_vel_min,0.14744059921180416,0.14744059921180416,Positiva,Movimiento
+attacker_vel_rango,0.14293221817834684,0.14293221817834684,Positiva,Movimiento
+attacker_yaw_delta_var,0.13618401388549692,0.13618401388549692,Positiva,Apuntado y orientación
+weapon_knife_proporcion,0.13454609710159643,0.13454609710159643,Positiva,Armas
+delta_y_media,-0.13147303720337727,0.13147303720337727,Negativa,Relación espacial
+delta_z_min,0.12658869707962853,0.12658869707962853,Positiva,Relación espacial
+weapon_auto_rifle_proporcion,-0.12320726709704775,0.12320726709704775,Negativa,Armas
+delta_z_media,-0.12213564067256302,0.12213564067256302,Negativa,Relación espacial
+weapon_semi_rifle_kill,0.12061107157039176,0.12061107157039176,Positiva,Armas
+weapon_smg_proporcion,-0.11927482792770171,0.11927482792770171,Negativa,Armas
+delta_x_cambio_media_abs,-0.11486421559631618,0.11486421559631618,Negativa,Relación espacial
+attacker_pitch_head_delta_min_abs,0.10995136432696237,0.10995136432696237,Positiva,Apuntado y orientación
+weapon_pistol_proporcion,-0.1080041387333039,0.1080041387333039,Negativa,Armas
+delta_y_cambio_media_abs,0.10196735953435167,0.10196735953435167,Positiva,Relación espacial
+attacker_pitch_delta_var,-0.09332559940605124,0.09332559940605124,Negativa,Apuntado y orientación
+delta_y_min,0.09191774380343853,0.09191774380343853,Positiva,Relación espacial
+victim_health_media,0.08875569947267671,0.08875569947267671,Positiva,Combate y estados
+delta_x_var,-0.08637057015660346,0.08637057015660346,Negativa,Relación espacial
+distancia_3d_rango,0.07600126031298977,0.07600126031298977,Positiva,Relación espacial
+delta_y_max,0.07577039273549682,0.07577039273549682,Positiva,Relación espacial
+victim_health_cambio_inicio_kill,-0.07214879200800553,0.07214879200800553,Negativa,Combate y estados
+delta_y_cambio_max_abs,0.07023183843982077,0.07023183843982077,Positiva,Relación espacial
+delta_x_media,-0.05988532132690964,0.05988532132690964,Negativa,Relación espacial
+weapon_grenade_proporcion,-0.05472664141595193,0.05472664141595193,Negativa,Armas
+attacker_pitch_head_delta_media_abs,-0.05406031656587996,0.05406031656587996,Negativa,Apuntado y orientación
+weapon_grenade_kill,-0.05282476658819255,0.05282476658819255,Negativa,Armas
+delta_y_rango,-0.049188082810523275,0.049188082810523275,Negativa,Relación espacial
+attacker_pitch_delta_max_abs,-0.0483641315476322,0.0483641315476322,Negativa,Apuntado y orientación
+attacker_yaw_head_delta_var,0.046603860349087915,0.046603860349087915,Positiva,Apuntado y orientación
+delta_x_min,-0.046201223504664414,0.046201223504664414,Negativa,Relación espacial
+distancia_3d_var,-0.04593372741364385,0.04593372741364385,Negativa,Relación espacial
+delta_x_max,0.04412305682427289,0.04412305682427289,Positiva,Relación espacial
+attacker_pitch_head_delta_var,0.042114641952447775,0.042114641952447775,Positiva,Apuntado y orientación
+attacker_pitch_delta_media_abs,0.034622024654382945,0.034622024654382945,Positiva,Apuntado y orientación
+attacker_vel_var,0.028868874253348883,0.028868874253348883,Positiva,Movimiento
+weapon_shotgun_kill,-0.028714488839867016,0.028714488839867016,Negativa,Armas
+delta_z_var,0.028557408405023983,0.028557408405023983,Positiva,Relación espacial
+distancia_3d_cambio_max_abs,0.024358139506692276,0.024358139506692276,Positiva,Relación espacial
+delta_y_var,-0.023749913298385807,0.023749913298385807,Negativa,Relación espacial
+attacker_yaw_head_delta_min_abs,0.023367474721228132,0.023367474721228132,Positiva,Apuntado y orientación
+attacker_flashed_proporcion_activo,-0.02263944823693187,0.02263944823693187,Negativa,Combate y estados
+attacker_pitch_head_delta_kill,0.02118346110217945,0.02118346110217945,Positiva,Apuntado y orientación
+delta_z_max,0.014159162917243387,0.014159162917243387,Positiva,Relación espacial
+weapon_transiciones,0.01080932349845147,0.01080932349845147,Positiva,Armas
+attacker_yaw_delta_max_abs,0.004002606480657714,0.004002606480657714,Positiva,Apuntado y orientación

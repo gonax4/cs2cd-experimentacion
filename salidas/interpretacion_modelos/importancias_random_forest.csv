@@ -1,0 +1,73 @@
+caracteristica,importancia_mdi,grupo
+weapon_semi_rifle_proporcion,0.05858047838282678,Armas
+weapon_semi_rifle_kill,0.051860113214306496,Armas
+kill_wallbang,0.04834285626141516,Combate y estados
+attacker_shot_conteo,0.04175149742175225,Combate y estados
+attacker_shot_proporcion,0.03885553376828011,Combate y estados
+victim_health_media,0.0374344927029879,Combate y estados
+attacker_vel_max,0.03355784776894282,Movimiento
+weapon_auto_rifle_proporcion,0.027574841587982762,Armas
+kill_headshot,0.025384755873943492,Combate y estados
+attacker_yaw_head_delta_kill,0.023882516099782154,Apuntado y orientación
+attacker_vel_rango,0.023361418792010386,Movimiento
+weapon_auto_rifle_kill,0.02334355599464888,Armas
+attacker_vel_media,0.019816504229854252,Movimiento
+victim_noise_proporcion_activo,0.014969417977557086,Combate y estados
+attacker_yaw_head_delta_min_abs,0.01484389344241683,Apuntado y orientación
+delta_z_cambio_media_abs,0.014766225160140435,Relación espacial
+attacker_vel_var,0.014146311123889619,Movimiento
+attacker_yaw_head_delta_var,0.013680081730890638,Apuntado y orientación
+attacker_pitch_delta_media_abs,0.01299261533162236,Apuntado y orientación
+attacker_yaw_head_delta_media_abs,0.012976151746099472,Apuntado y orientación
+attacker_pitch_delta_max_abs,0.012823071079462059,Apuntado y orientación
+delta_y_cambio_max_abs,0.012805364826324021,Relación espacial
+attacker_yaw_delta_media_abs,0.012643371952810442,Apuntado y orientación
+attacker_pitch_head_delta_kill,0.012436885411249545,Apuntado y orientación
+distancia_3d_min,0.012281490530953124,Relación espacial
+distancia_3d_media,0.011934337953719348,Relación espacial
+distancia_3d_max,0.011552919383308432,Relación espacial
+attacker_pitch_head_delta_media_abs,0.0114250352349343,Apuntado y orientación
+delta_x_cambio_max_abs,0.011252515755628729,Relación espacial
+distancia_3d_cambio_media_abs,0.011176879803212627,Relación espacial
+delta_y_cambio_media_abs,0.011164156912993883,Relación espacial
+delta_z_cambio_max_abs,0.011099232524786402,Relación espacial
+attacker_pitch_head_delta_var,0.011079170606338864,Apuntado y orientación
+delta_x_min,0.010968540250193564,Relación espacial
+delta_x_media,0.010915770990591486,Relación espacial
+delta_x_max,0.010870025119032954,Relación espacial
+delta_y_max,0.010780757721133322,Relación espacial
+distancia_3d_cambio_max_abs,0.010761995996399612,Relación espacial
+delta_y_media,0.01064252707672599,Relación espacial
+delta_y_min,0.010620097789489944,Relación espacial
+distancia_3d_rango,0.01055295823274063,Relación espacial
+delta_y_rango,0.010517991972834947,Relación espacial
+attacker_pitch_head_delta_min_abs,0.010495616569411368,Apuntado y orientación
+delta_y_var,0.010421170167655813,Relación espacial
+distancia_3d_var,0.010377332003903315,Relación espacial
+delta_z_media,0.01034787242466635,Relación espacial
+attacker_yaw_delta_var,0.010334190070950313,Apuntado y orientación
+delta_x_cambio_media_abs,0.010285681023797,Relación espacial
+delta_x_var,0.010277651667470527,Relación espacial
+delta_x_rango,0.0102152557379109,Relación espacial
+delta_z_min,0.01017684751622922,Relación espacial
+weapon_pistol_proporcion,0.010081804483470638,Armas
+delta_z_max,0.010053683012632328,Relación espacial
+delta_z_rango,0.00964591452769214,Relación espacial
+attacker_yaw_delta_max_abs,0.009454666596318956,Apuntado y orientación
+attacker_pitch_delta_var,0.009339165180395955,Apuntado y orientación
+delta_z_var,0.009062432292559807,Relación espacial
+victim_health_cambio_inicio_kill,0.008567873076041387,Combate y estados
+attacker_vel_min,0.007541078782486863,Movimiento
+weapon_knife_proporcion,0.006109462557557513,Armas
+weapon_pistol_kill,0.005872343650765092,Armas
+weapon_smg_kill,0.004803587192512548,Armas
+weapon_smg_proporcion,0.004539188918351438,Armas
+weapon_transiciones,0.0030524281068577976,Armas
+attacker_flashed_proporcion_activo,0.001733746610396767,Combate y estados
+weapon_grenade_proporcion,0.0014546427845726015,Armas
+weapon_shotgun_proporcion,0.0012866274668414477,Armas
+weapon_shotgun_kill,0.001011877546400354,Armas
+kill_through_smoke,0.000539966240837915,Combate y estados
+kill_attacker_midair,0.00028216546215541167,Combate y estados
+weapon_knife_kill,0.00020299890373654607,Armas
+weapon_grenade_kill,6.5236892075442985e-06,Armas

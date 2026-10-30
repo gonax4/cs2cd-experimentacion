@@ -1,0 +1,52 @@
+﻿ORIGEN Y PROCEDENCIA DEL DATASET - CS2CD
+=========================================
+
+Identificador del dataset: CS2CD / Context_window_256
+Repositorio: https://huggingface.co/datasets/CS2CD/Context_window_256
+Plataforma: Hugging Face Datasets
+Formato de cada ventana: datos Parquet (256 ticks x 44 variables por tick)
+
+ACCESO IMPLEMENTADO EN EL PROYECTO
+---------------------------------
+from datasets import load_dataset
+from io import BytesIO
+import pandas as pd
+
+dataset = load_dataset(
+    "CS2CD/Context_window_256",
+    split="train",
+    streaming=True
+)
+ejemplo = next(iter(dataset))
+df = pd.read_parquet(BytesIO(ejemplo["parquet"]))
+
+La obtención del dataset se hace con la biblioteca de Hugging Face; NO se
+implementó scraping HTML ni una conexión a PostgreSQL/MySQL. Las ventanas
+originales se leen desde el origen y se convierten a DataFrames en memoria.
+No se almacenó en datos/crudo una réplica permanente de los Parquet originales.
+
+CANTIDADES Y TRAZABILIDAD
+------------------------
+- 90,707 ventanas originales utilizadas.
+- 127,553 ventanas aumentadas excluidas del experimento.
+- 794 identificadores de partida distintos encontrados en los archivos
+  procesados. El estudio fuente menciona 795; su diferencia no fue esclarecida.
+- Índice: datos/procesado/indice_ventanas_originales.csv
+- Particiones: datos/procesado/partidas_{train,validacion,test}.csv
+- Resumen: datos/procesado/resumen_particiones.csv
+- Características: datos/procesado/caracteristicas_{train,validacion,test}.csv
+
+ARCHIVOS DE CÓDIGO RELACIONADOS
+------------------------------
+1_inspeccionar_Dataset.py: inspección inicial mediante streaming.
+2_validar_ventanas.py: comprobación preliminar de 100 ventanas.
+3_crear_particiones.py: filtra los registros aumentados y separa por partida.
+4_generar_caracteristicas.py: transforma las ventanas originales en filas
+    tabulares y guarda 3 archivos CSV de características.
+
+Los CSV de datos/procesado son DATOS DERIVADOS, no archivos crudos. Las columnas
+de características (74 candidatas) se redujeron a 72 predictores para los
+modelos al excluir dos columnas constantes detectadas en TRAIN.
+
+Los pasos requieren las dependencias especificadas en requirements.txt y una
+conexión a Internet para la primera lectura remota.

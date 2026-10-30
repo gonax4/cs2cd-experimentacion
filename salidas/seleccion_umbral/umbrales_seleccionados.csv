@@ -1,0 +1,3 @@
+modelo,umbral,f1,precision,recall,accuracy,especificidad,verdaderos_negativos,falsos_positivos,falsos_negativos,verdaderos_positivos,predicciones_positivas,predicciones_negativas,empate_residual
+Regresion Logistica,0.67,0.5878910645959937,0.6021207929921623,0.5743183817062445,0.869911190053286,0.9268706041860859,10938.0,863.0,968.0,1306.0,2169.0,11906.0,False
+Random Forest,0.53,0.6332404828226555,0.6705998033431662,0.5998240985048373,0.8877442273534636,0.9432251504109821,11131.0,670.0,910.0,1364.0,2034.0,12041.0,False

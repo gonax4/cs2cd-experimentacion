@@ -1,0 +1,7 @@
+{
+  "criterio": "varianza cero detectada exclusivamente en TRAIN",
+  "caracteristicas": [
+    "victim_health_kill",
+    "victim_health_min"
+  ]
+}

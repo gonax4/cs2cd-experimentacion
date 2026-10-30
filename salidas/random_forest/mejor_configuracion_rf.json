@@ -1,0 +1,19 @@
+{
+  "best_params": {
+    "modelo__n_estimators": 800,
+    "modelo__min_samples_split": 5,
+    "modelo__min_samples_leaf": 2,
+    "modelo__max_features": "log2",
+    "modelo__max_depth": null,
+    "modelo__class_weight": "balanced"
+  },
+  "best_mean_cv_f1": 0.6866817778538834,
+  "numero_predictores": 72,
+  "semilla": 42,
+  "n_iter": 50,
+  "total_combinaciones_posibles": 864,
+  "cv": "Mismos 5 folds internos guardados durante Regresión Logística, derivados originalmente de StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=42)",
+  "scoring": "f1",
+  "bootstrap": true,
+  "duracion_busqueda_segundos": 28641.43809170008
+}

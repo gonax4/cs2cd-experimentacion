@@ -1,0 +1,33 @@
+{
+  "regresion_logistica": {
+    "umbral": 0.67,
+    "f1_validacion": 0.5878910645959937,
+    "precision_validacion": 0.6021207929921623,
+    "recall_validacion": 0.5743183817062445,
+    "especificidad_validacion": 0.9268706041860859,
+    "falsos_positivos": 863,
+    "falsos_negativos": 968,
+    "empate_residual": false
+  },
+  "random_forest": {
+    "umbral": 0.53,
+    "f1_validacion": 0.6332404828226555,
+    "precision_validacion": 0.6705998033431662,
+    "recall_validacion": 0.5998240985048373,
+    "especificidad_validacion": 0.9432251504109821,
+    "falsos_positivos": 670,
+    "falsos_negativos": 910,
+    "empate_residual": false
+  },
+  "reglas_seleccion": [
+    "Mayor F1 en VALIDACION externa",
+    "Si hay empate: menor numero de falsos positivos",
+    "Si persiste: mayor especificidad",
+    "Si persiste un empate exacto despues de las reglas anteriores, se conserva el menor umbral solo como regla determinista de reproducibilidad."
+  ],
+  "rango_umbral": {
+    "inicio": 0.1,
+    "fin": 0.9,
+    "paso": 0.01
+  }
+}

@@ -1,0 +1,4 @@
+particion,filas_generadas,filas_esperadas,columnas_totales,coincide_con_indice
+TRAIN,63411,63411,86,True
+VALIDACION,14075,14075,86,True
+TEST,13221,13221,86,True

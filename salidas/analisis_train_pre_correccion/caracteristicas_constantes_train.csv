@@ -1,0 +1,3 @@
+caracteristica,faltantes,infinitos,valores_unicos,constante,min,q01,q25,mediana,media,q75,q99,max,desv_std
+victim_health_min,0,0,1,True,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+victim_health_kill,0,0,1,True,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0

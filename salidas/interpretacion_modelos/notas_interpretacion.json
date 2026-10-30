@@ -1,0 +1,10 @@
+{
+  "uso_de_datos": "Interpretación de modelos ajustados y resumen de métricas ya guardadas",
+  "reentrenamiento": false,
+  "reevaluacion_test": false,
+  "n_predictores": 72,
+  "coeficientes_rl": "Signo y magnitud condicionales al preprocesamiento del pipeline",
+  "importancias_rf": "MDI/impureza; descriptivas, sujetas a sesgos de importancia",
+  "nota_grupos": "La suma de MDI por grupo depende también del número de características",
+  "limite": "Las asociaciones entre telemetría y etiquetas no prueban trampas en una eliminación individual"
+}

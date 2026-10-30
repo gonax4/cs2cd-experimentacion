@@ -1,0 +1,4 @@
+,count,mean,std,min,25%,50%,75%,max
+diag_weapon_ticks_sin_categoria,63411.0,0.1032313005629938,4.028968294900557,0.0,0.0,0.0,0.0,224.0
+diag_weapon_ticks_multiples,63411.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+diag_weapon_categorias_activas_kill,63411.0,0.9987699295074987,0.035051059811453435,0.0,1.0,1.0,1.0,1.0

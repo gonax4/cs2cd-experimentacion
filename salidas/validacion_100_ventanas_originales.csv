@@ -1,0 +1,101 @@
+ventana,origen,partida_id,jugador_id,kill_id,clase,etiqueta,filas_originales,columnas,cantidad_attacker_kill,ticks_con_kill,kill_en_tick_objetivo,tick_kill,filas_hasta_kill,estructura_correcta
+0,cdata,cdata_file_0,Player_3,0,cheater,1,256,44,1,[223],True,223,224,True
+1,cdata,cdata_file_0,Player_3,1,cheater,1,256,44,1,[223],True,223,224,True
+2,cdata,cdata_file_0,Player_3,10,cheater,1,256,44,1,[223],True,223,224,True
+3,cdata,cdata_file_0,Player_3,11,cheater,1,256,44,1,[223],True,223,224,True
+4,cdata,cdata_file_0,Player_3,12,cheater,1,256,44,1,[223],True,223,224,True
+5,cdata,cdata_file_0,Player_3,13,cheater,1,256,44,2,"[73, 223]",True,223,224,True
+6,cdata,cdata_file_0,Player_3,14,cheater,1,256,44,1,[223],True,223,224,True
+7,cdata,cdata_file_0,Player_3,15,cheater,1,256,44,1,[223],True,223,224,True
+8,cdata,cdata_file_0,Player_3,16,cheater,1,256,44,1,[223],True,223,224,True
+9,cdata,cdata_file_0,Player_3,17,cheater,1,256,44,2,"[89, 223]",True,223,224,True
+10,cdata,cdata_file_0,Player_3,18,cheater,1,256,44,3,"[30, 164, 223]",True,223,224,True
+11,cdata,cdata_file_0,Player_3,19,cheater,1,256,44,3,"[85, 144, 223]",True,223,224,True
+12,cdata,cdata_file_0,Player_3,2,cheater,1,256,44,1,[223],True,223,224,True
+13,cdata,cdata_file_0,Player_3,20,cheater,1,256,44,1,[223],True,223,224,True
+14,cdata,cdata_file_0,Player_3,21,cheater,1,256,44,1,[223],True,223,224,True
+15,cdata,cdata_file_0,Player_3,22,cheater,1,256,44,2,"[169, 223]",True,223,224,True
+16,cdata,cdata_file_0,Player_3,23,cheater,1,256,44,2,"[39, 223]",True,223,224,True
+17,cdata,cdata_file_0,Player_3,24,cheater,1,256,44,1,[223],True,223,224,True
+18,cdata,cdata_file_0,Player_3,25,cheater,1,256,44,2,"[171, 223]",True,223,224,True
+19,cdata,cdata_file_0,Player_3,26,cheater,1,256,44,3,"[82, 134, 223]",True,223,224,True
+20,cdata,cdata_file_0,Player_3,27,cheater,1,256,44,3,"[44, 133, 223]",True,223,224,True
+21,cdata,cdata_file_0,Player_3,28,cheater,1,256,44,3,"[19, 109, 223]",True,223,224,True
+22,cdata,cdata_file_0,Player_3,3,cheater,1,256,44,1,[223],True,223,224,True
+23,cdata,cdata_file_0,Player_3,4,cheater,1,256,44,1,[223],True,223,224,True
+24,cdata,cdata_file_0,Player_3,5,cheater,1,256,44,1,[223],True,223,224,True
+25,cdata,cdata_file_0,Player_3,6,cheater,1,256,44,1,[223],True,223,224,True
+26,cdata,cdata_file_0,Player_3,7,cheater,1,256,44,1,[223],True,223,224,True
+27,cdata,cdata_file_0,Player_3,8,cheater,1,256,44,1,[223],True,223,224,True
+28,cdata,cdata_file_0,Player_3,9,cheater,1,256,44,1,[223],True,223,224,True
+29,cdata,cdata_file_0,Player_4,0,cheater,1,256,44,1,[223],True,223,224,True
+30,cdata,cdata_file_0,Player_4,1,cheater,1,256,44,2,"[44, 223]",True,223,224,True
+31,cdata,cdata_file_0,Player_4,10,cheater,1,256,44,1,[223],True,223,224,True
+32,cdata,cdata_file_0,Player_4,11,cheater,1,256,44,1,[223],True,223,224,True
+33,cdata,cdata_file_0,Player_4,12,cheater,1,256,44,1,[223],True,223,224,True
+34,cdata,cdata_file_0,Player_4,13,cheater,1,256,44,1,[223],True,223,224,True
+35,cdata,cdata_file_0,Player_4,14,cheater,1,256,44,1,[223],True,223,224,True
+36,cdata,cdata_file_0,Player_4,15,cheater,1,256,44,1,[223],True,223,224,True
+37,cdata,cdata_file_0,Player_4,16,cheater,1,256,44,1,[223],True,223,224,True
+38,cdata,cdata_file_0,Player_4,17,cheater,1,256,44,1,[223],True,223,224,True
+39,cdata,cdata_file_0,Player_4,18,cheater,1,256,44,1,[223],True,223,224,True
+40,cdata,cdata_file_0,Player_4,2,cheater,1,256,44,1,[223],True,223,224,True
+41,cdata,cdata_file_0,Player_4,3,cheater,1,256,44,1,[223],True,223,224,True
+42,cdata,cdata_file_0,Player_4,4,cheater,1,256,44,1,[223],True,223,224,True
+43,cdata,cdata_file_0,Player_4,5,cheater,1,256,44,1,[223],True,223,224,True
+44,cdata,cdata_file_0,Player_4,6,cheater,1,256,44,1,[223],True,223,224,True
+45,cdata,cdata_file_0,Player_4,7,cheater,1,256,44,1,[223],True,223,224,True
+46,cdata,cdata_file_0,Player_4,8,cheater,1,256,44,1,[223],True,223,224,True
+47,cdata,cdata_file_0,Player_4,9,cheater,1,256,44,2,"[102, 223]",True,223,224,True
+48,cdata,cdata_file_1,Player_10,0,cheater,1,256,44,1,[223],True,223,224,True
+49,cdata,cdata_file_1,Player_10,1,cheater,1,256,44,1,[223],True,223,224,True
+50,cdata,cdata_file_1,Player_10,10,cheater,1,256,44,1,[223],True,223,224,True
+51,cdata,cdata_file_1,Player_10,11,cheater,1,256,44,1,[223],True,223,224,True
+52,cdata,cdata_file_1,Player_10,12,cheater,1,256,44,1,[223],True,223,224,True
+53,cdata,cdata_file_1,Player_10,13,cheater,1,256,44,1,[223],True,223,224,True
+54,cdata,cdata_file_1,Player_10,14,cheater,1,256,44,1,[223],True,223,224,True
+55,cdata,cdata_file_1,Player_10,15,cheater,1,256,44,1,[223],True,223,224,True
+56,cdata,cdata_file_1,Player_10,16,cheater,1,256,44,1,[223],True,223,224,True
+57,cdata,cdata_file_1,Player_10,17,cheater,1,256,44,2,"[173, 223]",True,223,224,True
+58,cdata,cdata_file_1,Player_10,18,cheater,1,256,44,3,"[135, 185, 223]",True,223,224,True
+59,cdata,cdata_file_1,Player_10,19,cheater,1,256,44,1,[223],True,223,224,True
+60,cdata,cdata_file_1,Player_10,2,cheater,1,256,44,1,[223],True,223,224,True
+61,cdata,cdata_file_1,Player_10,20,cheater,1,256,44,1,[223],True,223,224,True
+62,cdata,cdata_file_1,Player_10,21,cheater,1,256,44,1,[223],True,223,224,True
+63,cdata,cdata_file_1,Player_10,22,cheater,1,256,44,1,[223],True,223,224,True
+64,cdata,cdata_file_1,Player_10,3,cheater,1,256,44,1,[223],True,223,224,True
+65,cdata,cdata_file_1,Player_10,4,cheater,1,256,44,1,[223],True,223,224,True
+66,cdata,cdata_file_1,Player_10,5,cheater,1,256,44,1,[223],True,223,224,True
+67,cdata,cdata_file_1,Player_10,6,cheater,1,256,44,1,[223],True,223,224,True
+68,cdata,cdata_file_1,Player_10,7,cheater,1,256,44,2,"[62, 223]",True,223,224,True
+69,cdata,cdata_file_1,Player_10,8,cheater,1,256,44,1,[223],True,223,224,True
+70,cdata,cdata_file_1,Player_10,9,cheater,1,256,44,1,[223],True,223,224,True
+71,cdata,cdata_file_10,Player_1,0,cheater,1,256,44,1,[223],True,223,224,True
+72,cdata,cdata_file_10,Player_1,1,cheater,1,256,44,1,[223],True,223,224,True
+73,cdata,cdata_file_10,Player_1,10,cheater,1,256,44,1,[223],True,223,224,True
+74,cdata,cdata_file_10,Player_1,11,cheater,1,256,44,2,"[88, 223]",True,223,224,True
+75,cdata,cdata_file_10,Player_1,2,cheater,1,256,44,1,[223],True,223,224,True
+76,cdata,cdata_file_10,Player_1,3,cheater,1,256,44,3,"[163, 223, 248]",True,223,224,True
+77,cdata,cdata_file_10,Player_1,4,cheater,1,256,44,3,"[138, 198, 223]",True,223,224,True
+78,cdata,cdata_file_10,Player_1,5,cheater,1,256,44,1,[223],True,223,224,True
+79,cdata,cdata_file_10,Player_1,6,cheater,1,256,44,2,"[116, 223]",True,223,224,True
+80,cdata,cdata_file_10,Player_1,7,cheater,1,256,44,2,"[65, 223]",True,223,224,True
+81,cdata,cdata_file_10,Player_1,8,cheater,1,256,44,2,"[34, 223]",True,223,224,True
+82,cdata,cdata_file_10,Player_1,9,cheater,1,256,44,1,[223],True,223,224,True
+83,cdata,cdata_file_10,Player_2,0,cheater,1,256,44,1,[223],True,223,224,True
+84,cdata,cdata_file_10,Player_2,1,cheater,1,256,44,1,[223],True,223,224,True
+85,cdata,cdata_file_10,Player_2,2,cheater,1,256,44,1,[223],True,223,224,True
+86,cdata,cdata_file_10,Player_2,3,cheater,1,256,44,1,[223],True,223,224,True
+87,cdata,cdata_file_10,Player_2,4,cheater,1,256,44,1,[223],True,223,224,True
+88,cdata,cdata_file_10,Player_2,5,cheater,1,256,44,1,[223],True,223,224,True
+89,cdata,cdata_file_10,Player_2,6,cheater,1,256,44,1,[223],True,223,224,True
+90,cdata,cdata_file_10,Player_2,7,cheater,1,256,44,1,[223],True,223,224,True
+91,cdata,cdata_file_10,Player_3,0,cheater,1,256,44,1,[223],True,223,224,True
+92,cdata,cdata_file_10,Player_3,1,cheater,1,256,44,1,[223],True,223,224,True
+93,cdata,cdata_file_10,Player_3,10,cheater,1,256,44,1,[223],True,223,224,True
+94,cdata,cdata_file_10,Player_3,11,cheater,1,256,44,1,[223],True,223,224,True
+95,cdata,cdata_file_10,Player_3,12,cheater,1,256,44,1,[223],True,223,224,True
+96,cdata,cdata_file_10,Player_3,2,cheater,1,256,44,1,[223],True,223,224,True
+97,cdata,cdata_file_10,Player_3,3,cheater,1,256,44,2,"[57, 223]",True,223,224,True
+98,cdata,cdata_file_10,Player_3,4,cheater,1,256,44,1,[223],True,223,224,True
+99,cdata,cdata_file_10,Player_3,5,cheater,1,256,44,1,[223],True,223,224,True

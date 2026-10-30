@@ -1,0 +1,4 @@
+TEST evaluado con predictores, modelos y umbrales previamente congelados.
+Umbral RL: 0.67
+Umbral RF: 0.53
+No modificar el experimento basándose en TEST.
