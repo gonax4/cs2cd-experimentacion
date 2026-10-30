@@ -1,0 +1,32 @@
+# Entornos y configuraciones locales
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+.env
+.env.*
+!.env.example
+.vscode/
+.idea/
+
+# Datos procesados voluminosos
+/datos/procesado/*.csv
+!/datos/procesado/resumen_particiones.csv
+/datos/crudo/*.parquet
+/datos/crudo/*.arrow
+/datos/crudo/*.csv
+
+# Modelos entrenados
+/modelos/
+*.joblib
+*.pkl
+
+# Resultados de predicciones de gran tamaño
+/salidas/seleccion_umbral/probabilidades_validacion.csv
+/salidas/evaluacion_final_test/predicciones_test.csv
+
+# Archivos comprimidos
+*.zip
+*.7z
