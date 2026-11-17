@@ -69,3 +69,48 @@ python -m pip install -r requirements.txt
 Los scripts 1–4 acceden a la fuente pública mediante Internet; ejecutarlos de nuevo puede requerir tiempo y recursos importantes. Los scripts 5–10 necesitan los CSV y/o modelos de la **entrega completa**, que no están alojados aquí. La búsqueda de Random Forest originalmente consumió varias horas. **No se recomienda ejecutar de nuevo el script 9 sobre TEST**, que ya fue evaluado y dispone de un archivo marcador `TEST_EVALUADO.txt`.
 
 **Alcance:** estudio comparativo sobre un dataset etiquetado. Las importancias de características no deben interpretarse como pruebas individuales de trampas.
+
+## Extensión exploratoria posterior al jurado
+
+**Estado:** código preparado, aún sin entrenamiento sobre los CSV completos. Se mantienen intactos los resultados originales de RL y RF.
+
+| Orden | Script | Función |
+|---|---|---|
+| 11 | `11_diagnosticar_desbalance.py` | Resume distribución por clases y folds. Solo lee métricas históricas de TEST, sin predecir sobre TEST |
+| 12 | `12_entrenar_xgboost.py` | Entrena XGBoost en TRAIN usando los 72 predictores originales y los mismos cinco folds agrupados por partida |
+| 13 | `13_evaluar_xgboost_validacion.py` | Selecciona un umbral para XGBoost y reporta métricas solo en VALIDACION |
+| 14 | `14_analizar_falsos_negativos_validacion.py` | Resume FN por partida y compara descriptivamente FN y TP entre ventanas positivas de VALIDACION |
+
+### Ejecución (desde la raíz del repositorio)
+
+Instalar el entorno original y la dependencia adicional:
+
+```powershell
+python -m pip install -r requirements-xgboost.txt
+```
+
+Ejecutar los scripts en orden:
+
+```powershell
+python 11_diagnosticar_desbalance.py
+python 12_entrenar_xgboost.py
+python 13_evaluar_xgboost_validacion.py
+python 14_analizar_falsos_negativos_validacion.py
+```
+
+Los pasos 12–14 necesitan los archivos de la **entrega completa no incluidos en GitHub** (`datos/procesado/caracteristicas_train.csv` y `datos/procesado/caracteristicas_validacion.csv`). Los 72 predictores y el mapa de folds ya están incluidos en el repositorio.
+
+El nuevo modelo se guarda en `modelos/xgboost_best_pipeline.joblib` y los resultados en `salidas/xgboost/`. Los CSV de predicciones por ventana se excluyen mediante `.gitignore`.
+
+### Precauciones metodológicas
+
+- **No repetir la evaluación final sobre TEST** como si fuera independiente de las decisiones tomadas después de conocer los resultados históricos. La validación del nuevo clasificador es exploratoria.
+- `cheater=1` es la clase positiva. Cada fila representa una **ventana etiquetada**, no un jugador único.
+- El peso `scale_pos_weight` se calcula con el subconjunto recibido por `fit` en cada fold y se contrasta con ausencia de ponderación.
+- Se conserva F1 como criterio principal. Recall, precisión, ROC-AUC y PR-AUC son medidas complementarias.
+- Las diferencias de medianas de FN frente a TP no establecen causalidad ni prueban trampas individuales.
+- Antes de reclamar una mejora confirmatoria, acordar con el asesor una nueva prueba independiente o explicar la limitación del TEST histórico.
+
+### Experimentos futuros (todavía no implementados)
+
+Estudiar selección de características dentro de cada fold y aumento progresivo de datos con controles de origen y separación por partida. No mezclar esos cambios con la primera comparación de XGBoost.
