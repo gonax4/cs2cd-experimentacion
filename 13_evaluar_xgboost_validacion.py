@@ -4,11 +4,13 @@ Selecciona umbral maximizando F1 (igual al protocolo original).
 No abre TEST ni modifica métricas históricas de otros clasificadores.
 """
 import json
+import __main__
 from pathlib import Path
 
 import joblib
 import numpy as np
 import pandas as pd
+from xgb_estimador import XGBPonderado
 from sklearn.metrics import (
     accuracy_score,
     average_precision_score,
@@ -61,6 +63,11 @@ def main():
     y = datos["etiqueta"].astype(int).to_numpy()
     if set(np.unique(y)) != {0, 1}:
         raise ValueError("Las dos clases deben estar presentes")
+    # Compatibilidad con el primer archivo .joblib: el entrenamiento original
+    # guardó la clase como __main__.XGBPonderado. Registrarla aquí permite
+    # recuperar el modelo existente sin volver a ejecutar los 100 ajustes.
+    # Los entrenamientos nuevos usan directamente xgb_estimador.XGBPonderado.
+    __main__.XGBPonderado = XGBPonderado
     modelo = joblib.load(MODELO)
     prob = modelo.predict_proba(X)[:, 1]
     umbrales = np.round(np.arange(0.10, 0.91, 0.01), 2)
