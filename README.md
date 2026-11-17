@@ -72,7 +72,7 @@ Los scripts 1–4 acceden a la fuente pública mediante Internet; ejecutarlos de
 
 ## Extensión exploratoria posterior al jurado
 
-**Estado:** código preparado, aún sin entrenamiento sobre los CSV completos. Se mantienen intactos los resultados originales de RL y RF.
+**Estado:** el usuario ejecutó el entrenamiento de XGBoost sobre los CSV completos, con F1 medio CV = **0.6854575364**. Queda pendiente la evaluación externa en VALIDACION. Se mantienen intactos los resultados originales de RL y RF.
 
 | Orden | Script | Función |
 |---|---|---|
@@ -114,3 +114,7 @@ El nuevo modelo se guarda en `modelos/xgboost_best_pipeline.joblib` y los result
 ### Experimentos futuros (todavía no implementados)
 
 Estudiar selección de características dentro de cada fold y aumento progresivo de datos con controles de origen y separación por partida. No mezclar esos cambios con la primera comparación de XGBoost.
+
+### Compatibilidad del primer modelo guardado
+
+El primer entrenamiento produjo `modelos/xgboost_best_pipeline.joblib` con el estimador serializado como `__main__.XGBPonderado`. La actualización de `13_evaluar_xgboost_validacion.py` registra esa clase al cargar, por lo que **no es necesario entrenar nuevamente**. Para futuras ejecuciones, `12_entrenar_xgboost.py` utiliza la clase estable del módulo `xgb_estimador.py`. Mantener ambas versiones de scikit-learn y XGBoost del entorno registrado en `mejor_configuracion_xgb.json`.
