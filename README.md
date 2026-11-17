@@ -128,3 +128,13 @@ python 15_analizar_subgrupos_validacion.py
 ```
 
 Requiere `datos/procesado/caracteristicas_validacion.csv` y `salidas/xgboost/validacion/predicciones_validacion.csv`. Produce `salidas/xgboost/validacion/desempeno_por_subgrupos.csv`. Es un **análisis descriptivo posterior** y no debe usarse para modificar variables, seleccionar hiperparámetros o ajustar umbrales en VALIDACION. La comparación no prueba que ninguna característica cause el error. No utiliza TEST.
+
+### Ablación exploratoria dentro de TRAIN
+
+Después del diagnóstico de subgrupos de VALIDACION se propuso una hipótesis sobre `kill_wallbang` y las características de rifles semiautomáticos. **No es una hipótesis confirmatoria** porque se generó tras observar VALIDACION. Para probar su sensibilidad dentro de TRAIN sin volver a consultar VALIDACION ni TEST:
+
+```powershell
+python 16_ablacion_xgboost_train.py
+```
+
+Este script reutiliza los cinco folds por partida y los hiperparámetros ya seleccionados, con umbral fijo de 0.50. Compara 72 variables, sin `kill_wallbang`, sin las dos variables de rifle semiautomático y sin las tres. Produce `salidas/xgboost/ablacion_train/comparacion_ablacion.csv`, `metricas_por_fold.csv` y `metricas_oof_por_subgrupo.csv`. No reemplaza el modelo original ni produce una nueva evaluación final. La eliminación de variables se estudia solo como ablación, no como prueba de que esas variables sean incorrectas o causen un sesgo.
