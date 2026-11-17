@@ -118,3 +118,13 @@ Estudiar selección de características dentro de cada fold y aumento progresivo
 ### Compatibilidad del primer modelo guardado
 
 El primer entrenamiento produjo `modelos/xgboost_best_pipeline.joblib` con el estimador serializado como `__main__.XGBPonderado`. La actualización de `13_evaluar_xgboost_validacion.py` registra esa clase al cargar, por lo que **no es necesario entrenar nuevamente**. Para futuras ejecuciones, `12_entrenar_xgboost.py` utiliza la clase estable del módulo `xgb_estimador.py`. Mantener ambas versiones de scikit-learn y XGBoost del entorno registrado en `mejor_configuracion_xgb.json`.
+
+### Diagnóstico adicional por subgrupos (exploratorio)
+
+`15_analizar_subgrupos_validacion.py` compara el recall, falsos negativos y falsos positivos por `kill_wallbang`, `weapon_semi_rifle_kill`, `kill_headshot` y `kill_through_smoke` y por la combinación wallbang/arma. Se ejecuta después de los pasos 13 y 14:
+
+```powershell
+python 15_analizar_subgrupos_validacion.py
+```
+
+Requiere `datos/procesado/caracteristicas_validacion.csv` y `salidas/xgboost/validacion/predicciones_validacion.csv`. Produce `salidas/xgboost/validacion/desempeno_por_subgrupos.csv`. Es un **análisis descriptivo posterior** y no debe usarse para modificar variables, seleccionar hiperparámetros o ajustar umbrales en VALIDACION. La comparación no prueba que ninguna característica cause el error. No utiliza TEST.
