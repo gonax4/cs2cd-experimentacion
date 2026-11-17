@@ -72,7 +72,7 @@ Los scripts 1–4 acceden a la fuente pública mediante Internet; ejecutarlos de
 
 ## Extensión exploratoria posterior al jurado
 
-**Estado:** el usuario ejecutó el entrenamiento de XGBoost sobre los CSV completos, con F1 medio CV = **0.6854575364**. Queda pendiente la evaluación externa en VALIDACION. Se mantienen intactos los resultados originales de RL y RF.
+**Estado:** XGBoost entrenado con F1 medio CV = **0.6854575364**. En VALIDACION, al seleccionar umbral 0.66, obtuvo precisión = **0.6702**, recall = **0.6104**, F1 = **0.6389**. El análisis de ablación en TRAIN mantuvo mejor F1 con los 72 predictores completos (media CV = **0.6855**). Todas estas comparaciones posteriores al TEST histórico son exploratorias. Se mantienen intactos los resultados originales de RL y RF.
 
 | Orden | Script | Función |
 |---|---|---|
@@ -138,3 +138,13 @@ python 16_ablacion_xgboost_train.py
 ```
 
 Este script reutiliza los cinco folds por partida y los hiperparámetros ya seleccionados, con umbral fijo de 0.50. Compara 72 variables, sin `kill_wallbang`, sin las dos variables de rifle semiautomático y sin las tres. Produce `salidas/xgboost/ablacion_train/comparacion_ablacion.csv`, `metricas_por_fold.csv` y `metricas_oof_por_subgrupo.csv`. No reemplaza el modelo original ni produce una nueva evaluación final. La eliminación de variables se estudia solo como ablación, no como prueba de que esas variables sean incorrectas o causen un sesgo.
+
+### Comparación de ponderación XGBoost (solo TRAIN)
+
+Para aislar el efecto de `scale_pos_weight`, el archivo `17_comparar_ponderacion_xgboost_train.py` compara dos variantes: `balancear=False` (peso 1) y `balancear=True` (peso negativos / positivos de cada fold). Utiliza exactamente los mismos 72 predictores, los cinco folds agrupados por partida, los hiperparámetros fijos de XGBoost y umbral 0.50. **No vuelve a ejecutar la búsqueda de parámetros**, ni modifica el modelo existente, ni abre VALIDACION o TEST.
+
+```powershell
+python 17_comparar_ponderacion_xgboost_train.py
+```
+
+Escribe `salidas/xgboost/ponderacion_train/metricas_por_fold.csv`, `comparacion_ponderacion.csv` y `notas_metodologicas.json`. El contraste es **exploratorio**: los hiperparámetros fueron seleccionados anteriormente con una búsqueda que ya incluía la ponderación como opción. Mantenerlos constantes permite estudiar el efecto del peso con ese modelo, pero no demuestra que esos mismos hiperparámetros sean óptimos sin ponderar. Los resultados del TEST original continúan cerrados.
