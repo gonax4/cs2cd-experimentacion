@@ -69,3 +69,82 @@ python -m pip install -r requirements.txt
 Los scripts 1–4 acceden a la fuente pública mediante Internet; ejecutarlos de nuevo puede requerir tiempo y recursos importantes. Los scripts 5–10 necesitan los CSV y/o modelos de la **entrega completa**, que no están alojados aquí. La búsqueda de Random Forest originalmente consumió varias horas. **No se recomienda ejecutar de nuevo el script 9 sobre TEST**, que ya fue evaluado y dispone de un archivo marcador `TEST_EVALUADO.txt`.
 
 **Alcance:** estudio comparativo sobre un dataset etiquetado. Las importancias de características no deben interpretarse como pruebas individuales de trampas.
+
+## Extensión exploratoria posterior al jurado
+
+**Estado:** XGBoost entrenado con F1 medio CV = **0.6854575364**. En VALIDACION, al seleccionar umbral 0.66, obtuvo precisión = **0.6702**, recall = **0.6104**, F1 = **0.6389**. El análisis de ablación en TRAIN mantuvo mejor F1 con los 72 predictores completos (media CV = **0.6855**). Todas estas comparaciones posteriores al TEST histórico son exploratorias. Se mantienen intactos los resultados originales de RL y RF.
+
+| Orden | Script | Función |
+|---|---|---|
+| 11 | `11_diagnosticar_desbalance.py` | Resume distribución por clases y folds. Solo lee métricas históricas de TEST, sin predecir sobre TEST |
+| 12 | `12_entrenar_xgboost.py` | Entrena XGBoost en TRAIN usando los 72 predictores originales y los mismos cinco folds agrupados por partida |
+| 13 | `13_evaluar_xgboost_validacion.py` | Selecciona un umbral para XGBoost y reporta métricas solo en VALIDACION |
+| 14 | `14_analizar_falsos_negativos_validacion.py` | Resume FN por partida y compara descriptivamente FN y TP entre ventanas positivas de VALIDACION |
+
+### Ejecución (desde la raíz del repositorio)
+
+Instalar el entorno original y la dependencia adicional:
+
+```powershell
+python -m pip install -r requirements-xgboost.txt
+```
+
+Ejecutar los scripts en orden:
+
+```powershell
+python 11_diagnosticar_desbalance.py
+python 12_entrenar_xgboost.py
+python 13_evaluar_xgboost_validacion.py
+python 14_analizar_falsos_negativos_validacion.py
+```
+
+Los pasos 12–14 necesitan los archivos de la **entrega completa no incluidos en GitHub** (`datos/procesado/caracteristicas_train.csv` y `datos/procesado/caracteristicas_validacion.csv`). Los 72 predictores y el mapa de folds ya están incluidos en el repositorio.
+
+El nuevo modelo se guarda en `modelos/xgboost_best_pipeline.joblib` y los resultados en `salidas/xgboost/`. Los CSV de predicciones por ventana se excluyen mediante `.gitignore`.
+
+### Precauciones metodológicas
+
+- **No repetir la evaluación final sobre TEST** como si fuera independiente de las decisiones tomadas después de conocer los resultados históricos. La validación del nuevo clasificador es exploratoria.
+- `cheater=1` es la clase positiva. Cada fila representa una **ventana etiquetada**, no un jugador único.
+- El peso `scale_pos_weight` se calcula con el subconjunto recibido por `fit` en cada fold y se contrasta con ausencia de ponderación.
+- Se conserva F1 como criterio principal. Recall, precisión, ROC-AUC y PR-AUC son medidas complementarias.
+- Las diferencias de medianas de FN frente a TP no establecen causalidad ni prueban trampas individuales.
+- Antes de reclamar una mejora confirmatoria, acordar con el asesor una nueva prueba independiente o explicar la limitación del TEST histórico.
+
+### Experimentos futuros (todavía no implementados)
+
+Estudiar selección de características dentro de cada fold y aumento progresivo de datos con controles de origen y separación por partida. No mezclar esos cambios con la primera comparación de XGBoost.
+
+### Compatibilidad del primer modelo guardado
+
+El primer entrenamiento produjo `modelos/xgboost_best_pipeline.joblib` con el estimador serializado como `__main__.XGBPonderado`. La actualización de `13_evaluar_xgboost_validacion.py` registra esa clase al cargar, por lo que **no es necesario entrenar nuevamente**. Para futuras ejecuciones, `12_entrenar_xgboost.py` utiliza la clase estable del módulo `xgb_estimador.py`. Mantener ambas versiones de scikit-learn y XGBoost del entorno registrado en `mejor_configuracion_xgb.json`.
+
+### Diagnóstico adicional por subgrupos (exploratorio)
+
+`15_analizar_subgrupos_validacion.py` compara el recall, falsos negativos y falsos positivos por `kill_wallbang`, `weapon_semi_rifle_kill`, `kill_headshot` y `kill_through_smoke` y por la combinación wallbang/arma. Se ejecuta después de los pasos 13 y 14:
+
+```powershell
+python 15_analizar_subgrupos_validacion.py
+```
+
+Requiere `datos/procesado/caracteristicas_validacion.csv` y `salidas/xgboost/validacion/predicciones_validacion.csv`. Produce `salidas/xgboost/validacion/desempeno_por_subgrupos.csv`. Es un **análisis descriptivo posterior** y no debe usarse para modificar variables, seleccionar hiperparámetros o ajustar umbrales en VALIDACION. La comparación no prueba que ninguna característica cause el error. No utiliza TEST.
+
+### Ablación exploratoria dentro de TRAIN
+
+Después del diagnóstico de subgrupos de VALIDACION se propuso una hipótesis sobre `kill_wallbang` y las características de rifles semiautomáticos. **No es una hipótesis confirmatoria** porque se generó tras observar VALIDACION. Para probar su sensibilidad dentro de TRAIN sin volver a consultar VALIDACION ni TEST:
+
+```powershell
+python 16_ablacion_xgboost_train.py
+```
+
+Este script reutiliza los cinco folds por partida y los hiperparámetros ya seleccionados, con umbral fijo de 0.50. Compara 72 variables, sin `kill_wallbang`, sin las dos variables de rifle semiautomático y sin las tres. Produce `salidas/xgboost/ablacion_train/comparacion_ablacion.csv`, `metricas_por_fold.csv` y `metricas_oof_por_subgrupo.csv`. No reemplaza el modelo original ni produce una nueva evaluación final. La eliminación de variables se estudia solo como ablación, no como prueba de que esas variables sean incorrectas o causen un sesgo.
+
+### Comparación de ponderación XGBoost (solo TRAIN)
+
+Para aislar el efecto de `scale_pos_weight`, el archivo `17_comparar_ponderacion_xgboost_train.py` compara dos variantes: `balancear=False` (peso 1) y `balancear=True` (peso negativos / positivos de cada fold). Utiliza exactamente los mismos 72 predictores, los cinco folds agrupados por partida, los hiperparámetros fijos de XGBoost y umbral 0.50. **No vuelve a ejecutar la búsqueda de parámetros**, ni modifica el modelo existente, ni abre VALIDACION o TEST.
+
+```powershell
+python 17_comparar_ponderacion_xgboost_train.py
+```
+
+Escribe `salidas/xgboost/ponderacion_train/metricas_por_fold.csv`, `comparacion_ponderacion.csv` y `notas_metodologicas.json`. El contraste es **exploratorio**: los hiperparámetros fueron seleccionados anteriormente con una búsqueda que ya incluía la ponderación como opción. Mantenerlos constantes permite estudiar el efecto del peso con ese modelo, pero no demuestra que esos mismos hiperparámetros sean óptimos sin ponderar. Los resultados del TEST original continúan cerrados.

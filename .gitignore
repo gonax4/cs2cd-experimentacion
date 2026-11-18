@@ -30,3 +30,6 @@ __pycache__/
 # Copias comprimidas
 *.zip
 *.7z
+
+# Extensión posterior al jurado: predicciones por ventana
+/salidas/xgboost/validacion/predicciones_validacion.csv
