@@ -1,69 +1,69 @@
-# CS2CD — Comparativa de clasificadores para detectar patrones asociados a trampas en CS2
+# CS2CD — Comparación de Regresión Logística, Random Forest y XGBoost
 
-Proyecto de **Seminario de Investigación I**. Se investiga la clasificación de ventanas de telemetría del dataset [CS2CD/Context_window_256](https://huggingface.co/datasets/CS2CD/Context_window_256) mediante **Regresión Logística (RL), Random Forest (RF) y XGBoost**.
+Repositorio de investigación sobre clasificación de ventanas de telemetría de *Counter-Strike 2* mediante tres clasificadores. La organización sigue las **funciones metodológicas** del estudio revisado, no la fecha en que se desarrolló cada experimento.
 
-> **Importante:** RL y RF fueron entrenados y evaluados sobre TEST en el estudio original. XGBoost se incorporó después de las observaciones del jurado. Sus resultados posteriores son exploratorios sobre TRAIN y VALIDACIÓN. **No se debe presentar un resultado de XGBoost en TEST ni comparar métricas de conjuntos diferentes como si fuesen equivalentes.**
+> **Rigor de evaluación:** El diseño original evaluó RL y RF sobre TEST. XGBoost se incorporó durante la revisión y se evaluó sobre TRAIN (validación cruzada agrupada) y VALIDACIÓN externa, **pero no sobre TEST**. La metodología se presenta integrada para facilitar su lectura, sin atribuirle retrospectivamente una evaluación final que no se realizó.
 
-## ¿Dónde está cada parte?
+## Estructura del proyecto
 
 ```text
 cs2cd-experimentacion/
 ├── scripts/
-│   ├── 01_estudio_original/    # Scripts 1–10; RL, RF y TEST histórico
-│   └── 02_extension_jurado/    # Scripts 11–22; XGBoost y experimentos
+│   ├── datos/               # Ingesta, particiones, características, desbalance, auditoría _aug
+│   ├── modelos/             # RL, RF, XGBoost, ponderación, ablación, sobremuestreo
+│   └── evaluacion/          # Umbrales, validación, TEST histórico, errores, curvas PR
 ├── docs/
-│   ├── GUIA_METODOLOGICA.md    # Etapas y relación con las secciones del artículo
-│   └── README_DETALLADO.md     # Documentación técnica completa e histórica
-├── datos/
-│   ├── crudo/                  # Documentación de la fuente
-│   └── procesado/              # Datos derivados (CSV grandes ignorados)
-├── salidas/                    # Configuraciones, métricas y gráficas
-├── fuentes/                    # Procedencia del dataset
+│   ├── GUIA_METODOLOGICA.md # Metodología integrada y flechas del diagrama
+│   ├── EQUIVALENCIAS_SCRIPTS.md  # Rutas anteriores y nuevas
+│   └── REGISTRO_HISTORICO.md     # Procedencia de la extensión y advertencias
+├── datos/                   # Datos originales documentados y derivados
+├── salidas/                 # Métricas, configuraciones y figuras
+├── fuentes/                 # Documentación de procedencia de CS2CD
 ├── requirements.txt
 └── requirements-xgboost.txt
 ```
 
-**Empieza por [GUIA_METODOLOGICA.md](docs/GUIA_METODOLOGICA.md)**. Allí se ordenan los métodos según su papel científico en el artículo, sin confundirlos con el orden cronológico de desarrollo.
+El código mantiene sus cálculos y sus rutas de entrada/salida relativas a la raíz del repositorio. **No se reentrenó ni reevaluó TEST durante esta reorganización.**
 
-## Etapas científicas y archivos principales
+## Fases del diagrama metodológico
 
-| Etapa en la metodología | Archivos |
+1. **Preparación:** Ingesta de ventanas originales, segmento 0–223, particiones por partida, ingeniería de características y selección de 72 predictores con TRAIN.
+2. **Entrenamiento y ajuste:** RL, RF y XGBoost, con los mismos 5 folds agrupados por partida.
+3. **Validación y umbrales:** Modelos y pipelines aplicados a VALIDACIÓN, evaluación de precisión, recall y F1, y selección de umbrales.
+4. **Evaluación final histórica:** RL y RF sobre TEST, con los umbrales previamente fijados. **XGBoost no cuenta con evaluación independiente en TEST.**
+
+**Análisis complementarios transversales:** Desbalance, falsos negativos, subgrupos, ponderación, ablación, curvas PR, sobremuestreo y auditoría de aumentación. Se conectan a TRAIN o VALIDACIÓN según el experimento y **no** a TEST como un proceso secuencial posterior.
+
+## Archivos principales
+
+| Propósito | Archivo |
 |---|---|
-| Obtención, validación y particiones por partida | `scripts/01_estudio_original/1_...` a `5_...` |
-| Regresión Logística y Random Forest | `scripts/01_estudio_original/6_...` y `7_...` |
-| XGBoost (tercer clasificador, extensión posterior) | `scripts/02_extension_jurado/12_entrenar_xgboost.py` |
-| Evaluación y umbrales sobre VALIDACIÓN | Original: `8_seleccionar_umbrales_validacion.py`. Extensión: `13_evaluar_xgboost_validacion.py` |
-| Evaluación histórica sobre TEST | `scripts/01_estudio_original/9_evaluacion_final_test.py` **solo RL y RF, ya ejecutado** |
-| Interpretación, diagnóstico y análisis exploratorio | `10_...` y `11_...`, `14_...` a `22_...` |
-
-## Resultados de referencia
-
-| Clasificador | VALIDACIÓN F1 | VALIDACIÓN recall | Umbral en VALIDACIÓN | TEST histórico |
-|---|---:|---:|---:|---|
-| Regresión Logística | 0.5879 | 0.5743 | 0.67 | Disponible (estudio original) |
-| Random Forest | 0.6332 | 0.5998 | 0.53 | Disponible (estudio original) |
-| XGBoost | 0.6389 | 0.6104 | 0.66 | **No evaluado** |
-
-Estos resultados no implican superioridad estadística. Los experimentos 16–22 sobre TRAIN estudian características, ponderación, umbrales, sobremuestreo y viabilidad de la aumentación; no constituyen una nueva evaluación final independiente.
+| Partición por partida | `scripts/datos/crear_particiones.py` |
+| Ingeniería de características | `scripts/datos/generar_caracteristicas.py` |
+| Selección y análisis de predictores | `scripts/datos/analizar_train.py` |
+| Regresión Logística | `scripts/modelos/entrenar_regresion_logistica_final.py` |
+| Random Forest | `scripts/modelos/entrenar_random_forest.py` |
+| XGBoost | `scripts/modelos/entrenar_xgboost.py` |
+| Validación RL/RF | `scripts/evaluacion/seleccionar_umbrales_validacion.py` |
+| Validación XGBoost | `scripts/modelos/evaluar_xgboost_validacion.py` |
+| Evaluación histórica TEST (RL/RF) | `scripts/evaluacion/evaluacion_final_test.py` |
+| Experimentos complementarios | Archivos de `scripts/modelos/`, `scripts/evaluacion/` y `scripts/datos/` |
 
 ## Ejecución desde la raíz del repositorio
 
-**Las rutas de lectura/escritura de los scripts son relativas a la raíz del proyecto.** Ejecuta siempre los comandos estando en `cs2cd-experimentacion`.
-
 ```cmd
-python scripts/02_extension_jurado/19_comparar_igual_recall_train.py
-python scripts/02_extension_jurado/20_sobremuestreo_progresivo_xgboost_train.py
-python scripts/02_extension_jurado/22_auditar_aug_estratificado_train.py
+python scripts/evaluacion/graficar_curvas_pr_train.py
+python scripts/evaluacion/comparar_igual_recall_train.py
+python scripts/datos/auditar_aug_estratificado_train.py
 ```
 
-Los scripts que usan `xgb_estimador.py` lo encuentran en su misma carpeta, y el experimento 22 encuentra el 21 mediante `__file__`.
+Los scripts que entrenan XGBoost y el módulo `xgb_estimador.py` permanecen juntos en `scripts/modelos/`. La auditoría estratificada y su módulo de auditoría están juntos en `scripts/datos/`. Los archivos locales grandes de entrenamiento, modelos serializados y predicciones no se suben automáticamente al repositorio.
 
-**No ejecutes de nuevo el script 9:** TEST ya se evaluó y existe `salidas/evaluacion_final_test/TEST_EVALUADO.txt`.
+**No vuelvas a ejecutar `scripts/evaluacion/evaluacion_final_test.py`:** El conjunto TEST ya se utilizó en la fase histórica y está señalado por `salidas/evaluacion_final_test/TEST_EVALUADO.txt`.
 
-## Fuentes y detalles
+## Documentación
 
-- [Guía metodológica y mapa de scripts](docs/GUIA_METODOLOGICA.md)
-- [Descripción histórica de resultados, particiones y experimentos](docs/README_DETALLADO.md)
-- [Procedencia del dataset](fuentes/ORIGEN_DATASET_CS2CD.txt)
-
-Los archivos CSV de entrenamiento/validación, los modelos serializados y las predicciones voluminosas no están incluidos en GitHub. Se conservan localmente o en los entregables originales. Al cambiar de rama, **no borres ni sobrescribas esos datos locales**.
+- [Guía metodológica unificada](docs/GUIA_METODOLOGICA.md)
+- [Mapa de nombres y rutas anteriores](docs/EQUIVALENCIAS_SCRIPTS.md)
+- [Registro histórico y limitaciones](docs/REGISTRO_HISTORICO.md)
+- [Dataset fuente](https://huggingface.co/datasets/CS2CD/Context_window_256)
