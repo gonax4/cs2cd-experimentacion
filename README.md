@@ -159,3 +159,15 @@ python 18_graficar_curvas_pr_train.py
 ```
 
 El script 18 **no entrena**. Lee las probabilidades fuera de fold, dibuja `salidas/xgboost/ponderacion_train/curvas_precision_recall.png`, y guarda `resumen_curvas_pr.csv`. Presenta Average Precision (AP) calculado sobre todas las probabilidades fuera de fold, la prevalencia y los puntos del umbral fijo 0.50. La comparación con y sin ponderación sigue siendo exploratoria, ya que los hiperparámetros fijos se escogieron mediante una búsqueda previa sobre TRAIN. No se seleccionan nuevos umbrales ni se consultan VALIDACION o TEST.
+
+### Comparación a recall equivalente: ponderación de XGBoost
+
+Una vez generado `salidas/xgboost/ponderacion_train/predicciones_oof_train.csv` con el script 17, ejecutar:
+
+```powershell
+python 19_comparar_igual_recall_train.py
+```
+
+El script 19 **no realiza entrenamientos**. Con las mismas predicciones fuera de fold de TRAIN de ambos modelos, encuentra el **umbral más alto que alcance al menos** cada recall objetivo de 60 %, 70 % y 73 %. Compara precisión, F1 y falsos positivos a recalls prácticamente iguales, para separar mejor el efecto de `scale_pos_weight` de elegir el umbral común 0.50. Los recalls observados pueden diferir unas pocas ventanas por discretización o empates.
+
+Archivos: `salidas/xgboost/ponderacion_train/comparacion_igual_recall.csv` (todos los resultados), `diferencias_igual_recall.csv` (diferencia entre modelos), `comparacion_igual_recall.png` (gráfico de falsos positivos) y `notas_igual_recall.json` (limitaciones). **Los umbrales se calculan post hoc sobre las mismas predicciones usadas para comparar métricas: no son umbrales validados independientemente ni deben trasladarse directamente a TEST.** Los hiperparámetros fueron elegidos previamente mediante CV en TRAIN; el análisis es exploratorio.
