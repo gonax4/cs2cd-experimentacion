@@ -114,6 +114,7 @@ def metricas(y, prob):
 def main():
     X, y, folds, parametros = cargar()
     filas_folds, filas_resumen = [], []
+    probabilidades_oof = {}
     SALIDA.mkdir(parents=True, exist_ok=True)
     print(
         f"TRAIN: {len(y)} ventanas, 72 características, "
@@ -148,6 +149,7 @@ def main():
 
         if not np.isfinite(prob_oof).all():
             raise RuntimeError("No se generaron predicciones para todas las filas")
+        probabilidades_oof[nombre] = prob_oof.copy()
 
         # El resumen agregado utiliza exactamente una predicción fuera de fold
         # por ventana. Las medias por fold se calculan por separado.
@@ -156,6 +158,27 @@ def main():
             "umbral": UMBRAL,
             **metricas(y, prob_oof),
         })
+
+    # Conservar probabilidades fuera de fold para analizar curvas PR sin
+    # repetir los 10 entrenamientos. Cada fila procede de un fold donde la
+    # partida correspondiente no participó en el entrenamiento.
+    fold_por_fila = np.zeros(len(y), dtype=int)
+    for numero, _, indices_val in folds:
+        if (fold_por_fila[indices_val] != 0).any():
+            raise ValueError("Una ventana figura en varios folds")
+        fold_por_fila[indices_val] = numero
+    if (fold_por_fila == 0).any():
+        raise ValueError("Hay ventanas sin fold")
+    predicciones_oof = pd.DataFrame({
+        "indice_fila": np.arange(len(y), dtype=int),
+        "fold": fold_por_fila,
+        "etiqueta_real": y,
+        "probabilidad_sin_ponderacion": probabilidades_oof["sin_ponderacion"],
+        "probabilidad_con_ponderacion": probabilidades_oof["con_ponderacion"],
+    })
+    predicciones_oof.to_csv(
+        SALIDA / "predicciones_oof_train.csv", index=False
+    )
 
     por_fold = pd.DataFrame(filas_folds)
     resumen = pd.DataFrame(filas_resumen)
@@ -202,7 +225,8 @@ def main():
              "media_precision", "tp", "fn", "fp", "tn"]
         ].to_string(index=False)
     )
-    print("\nResultados guardados en:", SALIDA)
+    print("\\nResultados guardados en:", SALIDA)
+    print("Probabilidades OOF disponibles para 18_graficar_curvas_pr_train.py")
     print("No se modificó el modelo original. No se abrió VALIDACION ni TEST.")
 
 
