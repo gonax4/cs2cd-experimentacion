@@ -226,7 +226,7 @@ def main():
         ].to_string(index=False)
     )
     print("\nResultados guardados en:", SALIDA)
-    print("Probabilidades OOF disponibles para 18_graficar_curvas_pr_train.py")
+    print("Probabilidades OOF disponibles para scripts/evaluacion/graficar_curvas_pr_train.py")
     print("No se modificó el modelo original. No se abrió VALIDACION ni TEST.")
 
 
