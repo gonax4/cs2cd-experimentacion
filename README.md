@@ -210,3 +210,19 @@ python 22_auditar_aug_estratificado_train.py
 ```
 
 Salidas: `salidas/auditoria_aug_estratificada/resumen_por_clase.csv`, `pares_auditados_estratificados.csv`, `claves_seleccionadas.csv`, `parejas_no_encontradas.csv`, `errores_auditoria.csv` y `notas_metodologicas.json`. Si el dataset no contiene `_aug0` para alguna ventana seleccionada, se registrará como pareja faltante y no se imputarán valores. La muestra garantiza diversidad por partida dentro de cada clase, pero **no representa aleatoriamente la distribución de todas las ventanas**. La auditoría solo establece el impacto observado de las variantes sobre las variables tabulares, no que un modelo temporal se beneficie o deje de beneficiarse del mismo mecanismo.
+
+### Resultado de la auditoría estratificada `_aug0` (experimento 22, solo TRAIN)
+
+La auditoría se ejecutó sobre **40 parejas originales/`_aug0`** elegidas en TRAIN: 20 positivas y 20 negativas, una por partida *dentro de cada clase*. Como dos partidas se repiten entre clases, se inspeccionaron **38 partidas distintas en total**. Se encontraron las 40 parejas sin errores tras recorrer 214 425 registros del streaming.
+
+| Clase | Parejas válidas | Cambios > 1e-6 en alguna de las 28 características espaciales | Cambios > 1e-3 | Máximo cambio en característica espacial |
+|---|---:|---:|---:|---:|
+| Negativa (0) | 20 | 3 | 3 | 0.024926 |
+| Positiva (1) | 20 | 5 | 5 | 0.016397 |
+| **Total** | **40** | **8** | **8** | **0.024926** |
+
+En las **40/40 parejas**, los canales no espaciales no cambiaron (`max_cambio_no_espacial = 0`). **32/40** tuvieron una variación espacial máxima no mayor que `1e-6`. **8/40** superaron `1e-3` y **4/40** superaron `0.01`. El máximo cambio relativo de coordenadas entre atacante y víctima fue `0.027148`.
+
+**Interpretación acotada:** Las muestras aumentadas preservan exactamente los canales no espaciales y con frecuencia dejan prácticamente inalteradas las 28 características espaciales que calcula el proyecto. Sin embargo, existen diferencias espaciales no triviales en una minoría de casos, compatibles con el efecto del recorte por separado a `[0, 1]`. La magnitud absoluta por sí sola **no demuestra** si esos cambios afectarán las predicciones de XGBoost. La muestra se seleccionó para diversificar partidas y clases, pero es pequeña, no representa la distribución general de ventanas y solo considera `_aug0`.
+
+**Decisión metodológica provisional:** No incorporar masivamente las variantes `_aug` ni atribuirles mejoras sin evaluar sus efectos. Considerar satisfecha la auditoría de viabilidad de la aumentación original y presentar la comparación final de modelos como limitada a la experimentación ya realizada, distinguiendo TEST histórico de evaluaciones exploratorias sobre TRAIN y VALIDACION. Si se emprende un estudio adicional con estas muestras, habrá que conservar el vínculo con sus partidas originales y limitar la aumentación a entrenamiento dentro de cada fold, con evaluación independiente.
