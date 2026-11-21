@@ -148,3 +148,14 @@ python 17_comparar_ponderacion_xgboost_train.py
 ```
 
 Escribe `salidas/xgboost/ponderacion_train/metricas_por_fold.csv`, `comparacion_ponderacion.csv` y `notas_metodologicas.json`. El contraste es **exploratorio**: los hiperparámetros fueron seleccionados anteriormente con una búsqueda que ya incluía la ponderación como opción. Mantenerlos constantes permite estudiar el efecto del peso con ese modelo, pero no demuestra que esos mismos hiperparámetros sean óptimos sin ponderar. Los resultados del TEST original continúan cerrados.
+
+### Curvas precisión-recall del experimento de ponderación
+
+El script 17 se ha ampliado para guardar probabilidades de predicción **fuera de fold** en `salidas/xgboost/ponderacion_train/predicciones_oof_train.csv`. Tras actualizar la rama, **es necesario ejecutar de nuevo el script 17 una sola vez** para generar ese archivo, porque los CSV antiguos contienen únicamente métricas agregadas y no permiten reconstruir curvas PR auténticas.
+
+```powershell
+python 17_comparar_ponderacion_xgboost_train.py
+python 18_graficar_curvas_pr_train.py
+```
+
+El script 18 **no entrena**. Lee las probabilidades fuera de fold, dibuja `salidas/xgboost/ponderacion_train/curvas_precision_recall.png`, y guarda `resumen_curvas_pr.csv`. Presenta Average Precision (AP) calculado sobre todas las probabilidades fuera de fold, la prevalencia y los puntos del umbral fijo 0.50. La comparación con y sin ponderación sigue siendo exploratoria, ya que los hiperparámetros fijos se escogieron mediante una búsqueda previa sobre TRAIN. No se seleccionan nuevos umbrales ni se consultan VALIDACION o TEST.
