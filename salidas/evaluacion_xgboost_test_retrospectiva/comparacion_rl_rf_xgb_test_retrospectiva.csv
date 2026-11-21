@@ -1,0 +1,4 @@
+modelo,umbral_fijo,accuracy,precision,recall,f1,especificidad,roc_auc,verdaderos_negativos,falsos_positivos,falsos_negativos,verdaderos_positivos,average_precision,tipo_evaluacion
+Regresion Logistica,0.67,0.847894,0.649580,0.567756,0.605918,0.920556,0.843366,9664,834,1177,1546,,TEST historico RL/RF
+Random Forest,0.53,0.865063,0.707102,0.588689,0.642485,0.936750,0.854247,9834,664,1120,1603,,TEST historico RL/RF
+XGBoost,0.66,0.8691475682626125,0.7152145643693107,0.6059493206022769,0.6560636182902585,0.9374166507906267,0.8686444445952561,9841,657,1073,1650,0.6897538305157482,TEST retrospectivo XGBoost (no independiente del desarrollo)
