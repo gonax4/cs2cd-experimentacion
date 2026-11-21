@@ -33,7 +33,7 @@ def leer():
     if not ENTRADA.is_file():
         raise FileNotFoundError(
             f"Falta {ENTRADA}. Ejecuta primero "
-            "python 17_comparar_ponderacion_xgboost_train.py"
+            "python scripts/modelos/comparar_ponderacion_xgboost_train.py"
         )
     datos = pd.read_csv(ENTRADA)
     requeridas = {"indice_fila", "fold", "etiqueta_real"}
