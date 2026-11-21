@@ -17,7 +17,7 @@ from datasets import load_dataset
 
 TRAIN = Path("datos/procesado/caracteristicas_train.csv")
 SALIDA = Path("salidas/auditoria_aug_estratificada")
-RUTA_21 = Path(__file__).with_name("21_auditar_aug_cs2cd.py")
+RUTA_21 = Path(__file__).with_name("auditar_aug_cs2cd.py")
 
 
 def cargar_funcion_auditoria():
