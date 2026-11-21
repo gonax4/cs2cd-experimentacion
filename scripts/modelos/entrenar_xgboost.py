@@ -145,7 +145,7 @@ def main():
     print("\nMejor configuración:", busqueda.best_params_)
     print("F1 media CV:", busqueda.best_score_)
     print("Modelo guardado:", RUTA_MODELO)
-    print("Siguiente paso: 13_evaluar_xgboost_validacion.py")
+    print("Siguiente paso: scripts/modelos/evaluar_xgboost_validacion.py")
 
 
 if __name__ == "__main__":
