@@ -1,109 +1,122 @@
-# Guía metodológica — CS2CD, Seminario de Investigación I
+# Metodología integrada de clasificación de telemetría CS2CD
 
-## 1. Regla básica: método científico ≠ cronología de programación
+## Objetivo y alcance
 
-La comparación del artículo debe explicar **tres clasificadores** sobre los mismos datos y criterios de partición: RL, RF y XGBoost. En el desarrollo real hubo dos fases distintas:
+Comparar **Regresión Logística (RL), Random Forest (RF) y XGBoost** para clasificar patrones de telemetría de jugadores etiquetados como tramposos en *Counter-Strike 2*, con el conjunto CS2CD. El estudio utiliza la **ventana** como unidad de análisis y la **partida** como agrupación de validación para reducir fugas entre ventanas correlacionadas. La clase etiquetada como `cheater` no equivale a demostrar una trampa en un instante concreto.
 
-- **Estudio original:** Ingesta, ingeniería de características, entrenamiento y evaluación de RL y RF, incluyendo una evaluación histórica en TEST.
-- **Extensión tras el jurado:** Diagnóstico de desbalance, tercer clasificador XGBoost y experimentos adicionales de recall y aumentación, **sin repetir TEST**.
+Esta es la **presentación metodológica consolidada**, que integra una ampliación posterior. No implica que los tres modelos se hubieran desarrollado simultáneamente ni que XGBoost hubiera sido evaluado sobre TEST.
 
-Esta separación preserva la trazabilidad. No debe escribirse que el script 9 evaluó XGBoost, ni presentar la extensión como si hubiera antecedido a la evaluación original de RL y RF.
+## FASE 1. Preparación de los datos
 
-## 2. Orden lógico para redactar la sección Metodología
+**Dataset:** `CS2CD/Context_window_256`; cada ventana de 256 ticks contiene 44 canales. Los scripts originales retuvieron **90 707 ventanas** y descartaron **127 553 variantes `_aug`** para la comparación inicial.
 
-### 2.1 Datos y unidad de análisis
+**Segmento temporal:** Para extraer características se emplean ticks 0–223, terminando en el evento objetivo situado en el tick 223.
 
-Fuente: `CS2CD/Context_window_256` de Hugging Face. Cada ventana original contiene 256 ticks y 44 canales. Se utilizan los ticks 0–223 para extraer estadísticas de comportamiento. Se indexaron **90 707 ventanas originales**, excluyendo **127 553 variantes aumentadas**.
+**Partición:** Las partidas se mezclan con semilla 42 y se asignan aproximadamente 70 % TRAIN, 15 % VALIDACIÓN y 15 % TEST. Los porcentajes corresponden al número de **partidas**, no a cantidades exactas de ventanas:
 
-Archivos:
-- `scripts/01_estudio_original/1_inspeccionar_Dataset.py`: Inspección de un Parquet.
-- `scripts/01_estudio_original/2_validar_ventanas.py`: Prueba estructural preliminar sobre 100 ventanas.
-- `scripts/01_estudio_original/3_crear_particiones.py`: Índice y separación TRAIN/VALIDACION/TEST por partida.
-- `scripts/01_estudio_original/4_generar_caracteristicas.py`: Transformación de las ventanas a filas tabulares.
-- `scripts/01_estudio_original/5_analizar_train.py`: Calidad y diagnóstico de características exclusivamente en TRAIN.
+| Conjunto | Partidas | Ventanas | Uso metodológico |
+|---|---:|---:|---|
+| TRAIN | 556 | 63 411 | Selección de predictores, búsqueda de hiperparámetros, validación cruzada |
+| VALIDACIÓN | 119 | 14 075 | Comparación externa, umbrales y análisis descriptivos |
+| TEST | 119 | 13 221 | Evaluación histórica solo de RL y RF |
 
-Precisión importante: El split `train` de Hugging Face **no** equivale a la partición experimental TRAIN.
+**Ingeniería de características:** Se aplica el mismo procedimiento a las tres particiones. Se extraen características agregadas de movimiento, direcciones, distancias relativas, disparos, eventos, armas y salud. Inicialmente existen **74 predictoras candidatas** y 3 indicadores diagnósticos. El análisis de TRAIN identificó dos predictoras constantes, `victim_health_min` y `victim_health_kill`, y se fijaron **72 predictores** para los tres modelos.
 
-### 2.2 Partición y validación cruzada
+Archivos: `scripts/datos/inspeccionar_dataset.py`, `validar_ventanas.py`, `crear_particiones.py`, `generar_caracteristicas.py` y `analizar_train.py`.
 
-La partición por partida evita que las ventanas de la misma partida se mezclen entre conjuntos. TRAIN tiene 63 411 ventanas de 556 partidas, VALIDACION 14 075 de 119 partidas y TEST 13 221 de 119 partidas. Los tres modelos reutilizan el mapa de **cinco folds internos agrupados por partida**, guardado en `salidas/regresion_logistica/mapa_partidas_folds_internos.csv`.
+**Flechas del diagrama:** Las tres ramas TRAIN, VALIDACIÓN y TEST pasan por ingeniería de características. La **selección de 72 predictores parte de TRAIN** y la lista elegida se aplica a los otros conjuntos. Las flechas a las fases posteriores salen de los últimos recuadros pertinentes de cada rama, no de posiciones arbitrarias del marco exterior.
 
-En el artículo deben explicarse por separado la búsqueda en TRAIN, la evaluación en VALIDACIÓN y el TEST histórico.
+## FASE 2. Entrenamiento y ajuste de los clasificadores
 
-### 2.3 Características y preprocesamiento
+Las tres alternativas reciben los mismos 72 predictores y emplean **cinco folds de entrenamiento/validación interna agrupados por partida**, conforme al mapa de folds ya guardado.
 
-Partiendo de 44 señales por tick se obtuvieron 74 predictores candidatos y 3 diagnósticos. Tras retirar dos atributos constantes detectados en TRAIN, se utilizaron **72 predictores finales**. La lista de referencia está en `salidas/regresion_logistica/predictores_finales_72.txt`.
-
-La Regresión Logística utiliza escalado dentro de su pipeline. No se debe suponer que RF o XGBoost requieren el mismo escalado.
-
-### 2.4 Modelos comparados
-
-| Modelo | Código | Protocolo de búsqueda |
+| Modelo | Archivo | Procedimiento |
 |---|---|---|
-| Regresión Logística | `scripts/01_estudio_original/6_entrenar_regresion_logistica_final.py` | GridSearchCV, 10 configuraciones × 5 folds |
-| Random Forest | `scripts/01_estudio_original/7_entrenar_random_forest.py` | RandomizedSearchCV, 50 configuraciones × 5 folds |
-| XGBoost | `scripts/02_extension_jurado/12_entrenar_xgboost.py` y `xgb_estimador.py` en la misma carpeta | RandomizedSearchCV, 20 configuraciones × 5 folds |
+| RL | `scripts/modelos/entrenar_regresion_logistica_final.py` | Pipeline con `LogisticRegression`, `GridSearchCV`, 10 combinaciones × 5 folds |
+| RF | `scripts/modelos/entrenar_random_forest.py` | `RandomForestClassifier`, `RandomizedSearchCV`, 50 combinaciones × 5 folds |
+| XGBoost | `scripts/modelos/entrenar_xgboost.py` | `XGBClassifier`, `RandomizedSearchCV`, 20 combinaciones × 5 folds |
 
-XGBoost fue incorporado **después** de completar la comparación original. Sus pruebas se reportan como extensión exploratoria. Para XGBoost ponderado, `scale_pos_weight` se calcula con la proporción de clases **solo del entrenamiento de cada fold**.
+**Preprocesamiento:** La RL escala las 61 variables continuas mediante `StandardScaler` dentro del pipeline, conservando 11 binarias sin ese escalado. RF y XGBoost trabajan con los predictores sin aplicar el mismo escalado.
 
-### 2.5 Métricas, umbrales y evaluación
+**Desbalance:** La proporción positiva en TRAIN es aproximadamente 21,17 %. Para XGBoost se exploró ponderación de la clase positiva, calculada exclusivamente con la parte de entrenamiento de cada fold. El archivo `scripts/modelos/xgb_estimador.py` implementa esa opción. En RL/RF se conservan las opciones de ponderación seleccionadas en sus propios ajustes.
 
-Explicar precisión, recall, F1, ROC-AUC, Average Precision (AP), matrices de confusión y falsos positivos/negativos. El umbral de clasificación cambia el equilibrio precisión-recall.
+**Importante:** Los ajustes y comparaciones de reponderación/sobremuestreo no son una etapa idéntica para RL, RF y XGBoost. Los experimentos adicionales se realizaron específicamente sobre XGBoost y no justifican escribir que los tres modelos recibieron las mismas técnicas complementarias.
 
-- `scripts/01_estudio_original/8_seleccionar_umbrales_validacion.py`: Selección histórica sobre VALIDACIÓN para RL y RF.
-- `scripts/02_extension_jurado/13_evaluar_xgboost_validacion.py`: Estudio de umbrales de XGBoost en VALIDACIÓN.
-- `scripts/01_estudio_original/9_evaluacion_final_test.py`: **TEST histórico de RL y RF, ya ejecutado. No reejecutar.**
-- `scripts/01_estudio_original/10_interpretar_modelos_y_resultados.py`: Interpretación de los modelos originales.
+## FASE 3. Validación, comparación y umbrales de decisión
 
-En tablas, **no mezclar** métricas de TRAIN, VALIDACIÓN y TEST. No hay evaluación nueva independiente de XGBoost en TEST.
+Aplicar cada modelo junto con su pipeline a VALIDACIÓN. Generar probabilidades y calcular precisión, recall, F1, ROC-AUC, Average Precision (AP) y errores de clasificación. Estudiar el efecto del umbral de decisión sobre las predicciones.
 
-## 3. Diagnósticos y pruebas exploratorias: Resultados complementarios
+En la comparación descriptiva sobre el mismo conjunto VALIDACIÓN:
 
-Esta fase se describe después de la comparación principal, sin presentar cada script como un paso obligatorio de producción.
+| Modelo | Umbral seleccionado con VALIDACIÓN | F1 VALIDACIÓN | Recall VALIDACIÓN |
+|---|---:|---:|---:|
+| RL | 0,67 | 0,5879 | 0,5743 |
+| RF | 0,53 | 0,6332 | 0,5998 |
+| XGBoost | 0,66 | 0,6389 | 0,6104 |
 
-| Pregunta de investigación | Script |
-|---|---|
-| ¿Cuál es el desbalance por partición y fold? | `11_diagnosticar_desbalance.py` |
-| ¿Dónde se producen los falsos negativos de XGBoost? | `14_analizar_falsos_negativos_validacion.py` |
-| ¿Qué subgrupos muestran mayor dificultad? | `15_analizar_subgrupos_validacion.py` |
-| ¿Qué ocurre al eliminar características? | `16_ablacion_xgboost_train.py` |
-| ¿Qué cambia con y sin ponderación de clases? | `17_comparar_ponderacion_xgboost_train.py` |
-| ¿Cómo son las curvas PR y AP? | `18_graficar_curvas_pr_train.py` |
-| ¿Qué sucede al comparar a igual recall? | `19_comparar_igual_recall_train.py` |
-| ¿Qué logra duplicar positivos progresivamente? | `20_sobremuestreo_progresivo_xgboost_train.py` |
-| ¿Qué cambios induce la aumentación original `_aug0`? | `21_auditar_aug_cs2cd.py` y `22_auditar_aug_estratificado_train.py` |
+Los resultados de XGBoost suponen una mejora pequeña de F1 respecto a RF. No se puede afirmar superioridad estadística sin análisis adicional. Como el umbral se eligió con ese mismo conjunto, los resultados son **descriptivos/seleccionados sobre VALIDACIÓN**, no una nueva confirmación independiente.
 
-Todos los archivos de esta tabla están en `scripts/02_extension_jurado/`. Su finalidad es **exploratoria y de discusión**, no una nueva evaluación final.
+Archivos: `scripts/evaluacion/seleccionar_umbrales_validacion.py` (RL/RF) y `scripts/modelos/evaluar_xgboost_validacion.py` (XGBoost).
 
-### Resultado y límite de la auditoría `_aug`
+## FASE 4. Evaluación final histórica e interpretación
 
-En la muestra estratificada se analizaron 40 parejas original/`_aug0`: 20 por clase y **38 partidas distintas en total**. Los canales no espaciales permanecieron idénticos en 40/40, mientras que 8/40 parejas presentaron al menos una variación espacial mayor que 0.001. En esta muestra la representación tabular suele conservarse, aunque **no siempre**. No se entrenó un modelo usando directamente `_aug`. La muestra pequeña no permite generalizar a todos los casos.
+Los modelos **RL y RF** se evaluaron históricamente sobre TEST aplicando sus hiperparámetros y umbrales previamente fijados. El archivo de evaluación es `scripts/evaluacion/evaluacion_final_test.py`, ya ejecutado. Sus resultados no deben volver a emplearse para seleccionar técnicas nuevas.
 
-### Resultado y límite del sobremuestreo progresivo
+| Modelo | F1 TEST histórico | Recall TEST histórico |
+|---|---:|---:|
+| RL | 0,605918 | 0,567756 |
+| RF | 0,642485 | 0,588689 |
 
-La duplicación aleatoria de positivos se aplicó **solo al entrenamiento de cada fold**. Con umbral 0.50, el nivel +100 % obtuvo el mejor F1 agregado de los niveles probados, con un intercambio precisión-recall y más falsos positivos. **Duplicar ventanas no añade señales independientes ni equivale a la aumentación de telemetría de los autores**.
+**XGBoost no tiene evaluación independiente en TEST.** No se debe dibujar una flecha que implique que el tercer modelo llegó a este paso. Una comparación de tres modelos sobre VALIDACIÓN puede presentarse como descriptiva y, por separado, los resultados históricos de RL/RF sobre TEST.
 
-## 4. Correspondencia con el artículo
+La interpretación de importancia de características procede de los modelos guardados, no de calcular importancias a partir de las métricas de TEST. Archivo: `scripts/evaluacion/interpretar_modelos_y_resultados.py`.
 
-| Apartado del artículo | Material recomendado |
-|---|---|
-| Metodología | Dataset, partición por partidas, 72 predictores, cinco folds, tres algoritmos, métricas y umbrales |
-| Resultados principales | Comparativa de RL/RF/XGBoost **en VALIDACIÓN**, identificando sus umbrales, y una tabla aparte para TEST histórico |
-| Resultados complementarios | Desbalance, falsos negativos, ponderación, PR, ablación, sobremuestreo y auditoría `_aug` |
-| Discusión | Trade-off precisión/recall, dependencia del umbral, subgrupos, limitaciones por ventana/partida, ausencia de TEST nuevo |
-| Conclusiones | Rendimientos observados, alcance de los tres modelos, limitaciones y trabajo futuro |
+## Análisis metodológicos complementarios (transversales)
 
-## 5. Cómo ejecutar tras la reorganización
+Estos procedimientos complementan la metodología, **no forman una fase secuencial posterior a TEST**. En el diagrama se muestran como un bloque lateral o inferior con flechas discontinuas desde sus fuentes.
 
-Situarse siempre en la raíz del repositorio:
+| Pregunta | Datos y estrategia | Archivo |
+|---|---|---|
+| ¿Qué desbalance existe? | Proporciones y folds, sin entrenar nuevos modelos | `scripts/datos/diagnosticar_desbalance.py` |
+| ¿Dónde falla XGBoost? | Falsos negativos de VALIDACIÓN | `scripts/evaluacion/analizar_falsos_negativos_validacion.py` |
+| ¿Hay diferencias entre subgrupos? | VALIDACIÓN, análisis descriptivo post hoc | `scripts/evaluacion/analizar_subgrupos_validacion.py` |
+| ¿Conviene excluir variables? | Ablación de 72, 71, 70 y 69 atributos en CV de TRAIN | `scripts/modelos/ablacion_xgboost_train.py` |
+| ¿Qué efecto tiene la ponderación? | XGBoost ponderado/no ponderado, cinco folds TRAIN | `scripts/modelos/comparar_ponderacion_xgboost_train.py` |
+| ¿Cómo cambian las curvas PR? | Probabilidades fuera de fold de TRAIN | `scripts/evaluacion/graficar_curvas_pr_train.py` |
+| ¿Qué pasa a igual recall? | Umbrales descriptivos sobre OOF de TRAIN | `scripts/evaluacion/comparar_igual_recall_train.py` |
+| ¿Qué aporta duplicar positivos? | Sobremuestreo +0, +50, +100, +200 y +300 % SOLO en entrenamiento de cada fold | `scripts/modelos/sobremuestreo_progresivo_xgboost_train.py` |
+| ¿Cómo cambia una variante `_aug`? | Auditoría original/aumentada de TRAIN (no entrenamiento) | `scripts/datos/auditar_aug_cs2cd.py` y `auditar_aug_estratificado_train.py` |
+
+**Resultados interpretables con cautela:**
+- La ponderación y el sobremuestreo aumentaron recall al umbral 0,50, pero no mejoraron de forma clara el AP general.
+- El mejor F1 agregado entre los niveles de duplicación ensayados se observó con +100 % de positivos, pero se trató de una exploración en TRAIN.
+- La auditoría estratificada de 40 parejas `_aug0` encontró **32/40** parejas sin cambios apreciables en las 28 características espaciales (umbral 1e-6) y **8/40** con cambios superiores a 0,001; no se entrenó un modelo con las variantes aumentadas.
+- Las comparaciones post hoc y selección de umbrales deben declararse **exploratorias**; no demuestran causalidad ni mejoras confirmadas sobre datos independientes.
+
+## Cómo dibujar las conexiones correctamente
+
+1. **CS2CD → Ticks 0–223 → Partición por partida** → Tres conjuntos.
+2. De cada conjunto, flecha a su **ingeniería de características**.
+3. Solo desde TRAIN se selecciona la lista de **72 predictores**, utilizada después para TRAIN, VALIDACIÓN y TEST.
+4. **TRAIN procesado → Cinco folds por partida → RL, RF y XGBoost → Modelos ajustados**.
+5. **VALIDACIÓN procesada + Modelos ajustados → Predicción y comparación de los tres → Estudio de umbrales**.
+6. Desde el resultado de umbrales, **únicamente RL/RF** continúan a TEST histórico.
+7. **TEST procesado + RL/RF fijados → Métricas históricas**.
+8. Del entrenamiento XGBoost y las predicciones de TRAIN/VALIDACIÓN salen **flechas discontinuas** a los análisis complementarios. No salen de TEST.
+9. **Análisis de importancia → Modelos entrenados**, no «métricas TEST → importancia».
+
+El esquema integrado es una presentación lógica y metodológica del trabajo terminado, no una afirmación de que todas las decisiones estaban preespecificadas desde el principio.
+
+## Rutas y ejecución
+
+Ejecutar siempre desde la raíz del repositorio:
 
 ```cmd
-python scripts/01_estudio_original/5_analizar_train.py
-python scripts/02_extension_jurado/18_graficar_curvas_pr_train.py
-python scripts/02_extension_jurado/19_comparar_igual_recall_train.py
-python scripts/02_extension_jurado/22_auditar_aug_estratificado_train.py
+python scripts/evaluacion/graficar_curvas_pr_train.py
+python scripts/evaluacion/comparar_igual_recall_train.py
+python scripts/datos/auditar_aug_estratificado_train.py
 ```
 
-Los CSV y modelos voluminosos se generan/leen en rutas de raíz: `datos/procesado`, `salidas`, `modelos`. **No ejecutes 3, 4, 6, 7, 9 o 12 indiscriminadamente**, pues algunos vuelven a generar artefactos costosos o históricos. Para verificar la organización, basta ejecutar un script de lectura o consulta de resultados que no reentrene.
+Los scripts de XGBoost y `xgb_estimador.py` permanecen juntos dentro de `scripts/modelos`. Las rutinas de auditoría 21/22 están juntas dentro de `scripts/datos`. Los CSV de `datos/procesado/`, los modelos en `modelos/` y los resultados en `salidas/` **mantienen sus rutas anteriores**.
 
-**Nota metodológica:** Esta guía reorganiza archivos existentes, no cambia cifras, hiperparámetros ni los conjuntos utilizados. La extensión XGBoost sigue siendo una investigación posterior a la evaluación original.
+Para la trazabilidad, consultar `docs/REGISTRO_HISTORICO.md` y `docs/EQUIVALENCIAS_SCRIPTS.md`.
