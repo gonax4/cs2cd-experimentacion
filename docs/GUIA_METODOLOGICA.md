@@ -4,7 +4,7 @@
 
 Comparar **Regresión Logística (RL), Random Forest (RF) y XGBoost** para clasificar patrones de telemetría de jugadores etiquetados como tramposos en *Counter-Strike 2*, con el conjunto CS2CD. El estudio utiliza la **ventana** como unidad de análisis y la **partida** como agrupación de validación para reducir fugas entre ventanas correlacionadas. La clase etiquetada como `cheater` no equivale a demostrar una trampa en un instante concreto.
 
-Esta es la **presentación metodológica consolidada**, que integra una ampliación posterior. No implica que los tres modelos se hubieran desarrollado simultáneamente ni que XGBoost hubiera sido evaluado sobre TEST.
+Esta es la **presentación metodológica consolidada**, que integra una ampliación posterior. No implica que los tres modelos se hubieran desarrollado simultáneamente. El repositorio ahora ofrece una **evaluación retrospectiva opcional** de XGBoost sobre TEST, todavía pendiente de ejecución local; no equivale a una prueba independiente ciega.
 
 ## FASE 1. Preparación de los datos
 
@@ -18,7 +18,7 @@ Esta es la **presentación metodológica consolidada**, que integra una ampliaci
 |---|---:|---:|---|
 | TRAIN | 556 | 63 411 | Selección de predictores, búsqueda de hiperparámetros, validación cruzada |
 | VALIDACIÓN | 119 | 14 075 | Comparación externa, umbrales y análisis descriptivos |
-| TEST | 119 | 13 221 | Evaluación histórica solo de RL y RF |
+| TEST | 119 | 13 221 | RL/RF históricos. XGBoost: evaluación retrospectiva adicional disponible, todavía no ejecutada |
 
 **Ingeniería de características:** Se aplica el mismo procedimiento a las tres particiones. Se extraen características agregadas de movimiento, direcciones, distancias relativas, disparos, eventos, armas y salud. Inicialmente existen **74 predictoras candidatas** y 3 indicadores diagnósticos. El análisis de TRAIN identificó dos predictoras constantes, `victim_health_min` y `victim_health_kill`, y se fijaron **72 predictores** para los tres modelos.
 
@@ -58,7 +58,7 @@ Los resultados de XGBoost suponen una mejora pequeña de F1 respecto a RF. No se
 
 Archivos: `scripts/evaluacion/seleccionar_umbrales_validacion.py` (RL/RF) y `scripts/modelos/evaluar_xgboost_validacion.py` (XGBoost).
 
-## FASE 4. Evaluación final histórica e interpretación
+## FASE 4. Evaluación final e interpretación (histórica y retrospectiva)
 
 Los modelos **RL y RF** se evaluaron históricamente sobre TEST aplicando sus hiperparámetros y umbrales previamente fijados. El archivo de evaluación es `scripts/evaluacion/evaluacion_final_test.py`, ya ejecutado. Sus resultados no deben volver a emplearse para seleccionar técnicas nuevas.
 
@@ -67,7 +67,7 @@ Los modelos **RL y RF** se evaluaron históricamente sobre TEST aplicando sus hi
 | RL | 0,605918 | 0,567756 |
 | RF | 0,642485 | 0,588689 |
 
-**XGBoost no tiene evaluación independiente en TEST.** No se debe dibujar una flecha que implique que el tercer modelo llegó a este paso. Una comparación de tres modelos sobre VALIDACIÓN puede presentarse como descriptiva y, por separado, los resultados históricos de RL/RF sobre TEST.
+**XGBoost puede incluirse en esta fase como una evaluación adicional retrospectiva**, usando el modelo `modelos/xgboost_best_pipeline.joblib` ya entrenado y el umbral 0,66 seleccionado previamente en VALIDACIÓN. El modo `python scripts/evaluacion/evaluacion_final_test.py --xgboost` **aún no ha sido ejecutado**. Es independiente del código de RL/RF: No altera sus archivos históricos y escribe en `salidas/evaluacion_xgboost_test_retrospectiva/`. Dado que TEST ya era conocido en el desarrollo original, **no debe presentarse esa nueva comparación como confirmación independiente** ni utilizarse para ajustar XGBoost o seleccionar estrategias nuevas. Hasta ejecutarlo, no existe ningún resultado numérico de XGBoost en TEST que deba figurar en el artículo.
 
 La interpretación de importancia de características procede de los modelos guardados, no de calcular importancias a partir de las métricas de TEST. Archivo: `scripts/evaluacion/interpretar_modelos_y_resultados.py`.
 
@@ -100,8 +100,8 @@ Estos procedimientos complementan la metodología, **no forman una fase secuenci
 3. Solo desde TRAIN se selecciona la lista de **72 predictores**, utilizada después para TRAIN, VALIDACIÓN y TEST.
 4. **TRAIN procesado → Cinco folds por partida → RL, RF y XGBoost → Modelos ajustados**.
 5. **VALIDACIÓN procesada + Modelos ajustados → Predicción y comparación de los tres → Estudio de umbrales**.
-6. Desde el resultado de umbrales, **únicamente RL/RF** continúan a TEST histórico.
-7. **TEST procesado + RL/RF fijados → Métricas históricas**.
+6. Desde el resultado de umbrales, **RL/RF** continúan a TEST histórico. **XGBoost** tiene una rama retrospectiva adicional, todavía pendiente de ejecución, siempre con su umbral de VALIDACIÓN fijado (0,66).
+7. **TEST procesado + RL/RF fijados → Métricas históricas**. Una segunda rama, marcada como **retrospectiva**, une TEST con el modelo XGBoost ya congelado, sin modificar los resultados anteriores.
 8. Del entrenamiento XGBoost y las predicciones de TRAIN/VALIDACIÓN salen **flechas discontinuas** a los análisis complementarios. No salen de TEST.
 9. **Análisis de importancia → Modelos entrenados**, no «métricas TEST → importancia».
 
