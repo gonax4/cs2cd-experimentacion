@@ -171,3 +171,13 @@ python 19_comparar_igual_recall_train.py
 El script 19 **no realiza entrenamientos**. Con las mismas predicciones fuera de fold de TRAIN de ambos modelos, encuentra el **umbral más alto que alcance al menos** cada recall objetivo de 60 %, 70 % y 73 %. Compara precisión, F1 y falsos positivos a recalls prácticamente iguales, para separar mejor el efecto de `scale_pos_weight` de elegir el umbral común 0.50. Los recalls observados pueden diferir unas pocas ventanas por discretización o empates.
 
 Archivos: `salidas/xgboost/ponderacion_train/comparacion_igual_recall.csv` (todos los resultados), `diferencias_igual_recall.csv` (diferencia entre modelos), `comparacion_igual_recall.png` (gráfico de falsos positivos) y `notas_igual_recall.json` (limitaciones). **Los umbrales se calculan post hoc sobre las mismas predicciones usadas para comparar métricas: no son umbrales validados independientemente ni deben trasladarse directamente a TEST.** Los hiperparámetros fueron elegidos previamente mediante CV en TRAIN; el análisis es exploratorio.
+
+### Experimento 20: sobremuestreo positivo progresivo (solo TRAIN)
+
+Como **línea base previa** al uso de las ventanas sintéticamente aumentadas del dataset, el archivo `20_sobremuestreo_progresivo_xgboost_train.py` compara niveles de **duplicación aleatoria de filas positivas**: +0 %, +50 %, +100 %, +200 % y +300 % respecto a las positivas originales de cada subconjunto de entrenamiento de fold. Reutiliza los mismos cinco folds agrupados por partida, los 72 predictores y los hiperparámetros fijos, con **ponderación desactivada** y umbral fijo de 0.50 para aislar el efecto del remuestreo. El incremento es anidado y reproducible mediante semillas fijas. Solo se duplican filas del subconjunto de entrenamiento de cada fold; la evaluación interna siempre usa las filas originales de validación del fold.
+
+```powershell
+python 20_sobremuestreo_progresivo_xgboost_train.py
+```
+
+Resultados: `salidas/xgboost/sobremuestreo_train/comparacion_sobremuestreo.csv`, `metricas_por_fold.csv` y `notas_metodologicas.json`. El experimento ejecuta **25 ajustes**. **No es aumento sintético de telemetría**: duplicar ventanas no produce evidencia ni señales nuevas, y no equivale al aumento de los creadores. El dataset público `CS2CD/Context_window_256` incluye archivos con sufijos `_aug*` que nuestros scripts 3 y 4 originales omitieron deliberadamente. Antes de incorporar esas muestras preexistentes será necesario verificar su clave de origen, transformación y agrupación por partida, y añadir solo las correspondientes a TRAIN y al subconjunto de entrenamiento de cada fold. No abrir TEST. No reemplazar los modelos originales.
