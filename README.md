@@ -1,71 +1,69 @@
-# CS2CD — Experimentación con Regresión Logística y Random Forest
+# CS2CD — Comparativa de clasificadores para detectar patrones asociados a trampas en CS2
 
-Implementación de una investigación académica para **comparar modelos que identifican patrones asociados a jugadores etiquetados como tramposos en Counter-Strike 2** mediante datos de telemetría. Se evalúan **Regresión Logística** y **Random Forest**; no se afirma que una acción aislada (como un headshot) pruebe una trampa.
+Proyecto de **Seminario de Investigación I**. Se investiga la clasificación de ventanas de telemetría del dataset [CS2CD/Context_window_256](https://huggingface.co/datasets/CS2CD/Context_window_256) mediante **Regresión Logística (RL), Random Forest (RF) y XGBoost**.
 
-> **Avance 2.1 — Seminario de Investigación I.** Este repositorio contiene el **código fuente y las evidencias ligeras**. Los CSV procesados completos, modelos entrenados y otros artefactos voluminosos se entregan **por separado en la carpeta compartida del curso**. No se incluyen ni se sustituyen los Parquet originales.
+> **Importante:** RL y RF fueron entrenados y evaluados sobre TEST en el estudio original. XGBoost se incorporó después de las observaciones del jurado. Sus resultados posteriores son exploratorios sobre TRAIN y VALIDACIÓN. **No se debe presentar un resultado de XGBoost en TEST ni comparar métricas de conjuntos diferentes como si fuesen equivalentes.**
 
-## Fuente y acceso a datos
+## ¿Dónde está cada parte?
 
-- Dataset público: [CS2CD / Context_window_256 (Hugging Face)](https://huggingface.co/datasets/CS2CD/Context_window_256).
-- El acceso se implementa con `load_dataset("CS2CD/Context_window_256", split="train", streaming=True)` y la lectura de bytes Parquet con `pd.read_parquet(BytesIO(...))`.
-- Cada ventana tiene **256 ticks × 44 variables**. El split original de Hugging Face (`train`) **no** representa la partición TRAIN del experimento.
-- `datos/crudo/README_DATOS_CRUDOS.txt` y `fuentes/ORIGEN_DATASET_CS2CD.txt` documentan la procedencia. La carpeta `datos/crudo` no contiene una descarga permanente del conjunto original.
-
-## Flujo de trabajo
-
-| Orden | Script | Función |
-|---|---|---|
-| 1 | `1_inspeccionar_Dataset.py` | Inspección de la estructura de una ventana original. |
-| 2 | `2_validar_ventanas.py` | Verificación **preliminar de 100 ventanas**, no de todo el conjunto. |
-| 3 | `3_crear_particiones.py` | Exclusión de ventanas aumentadas e índice/particiones agrupadas por partida. |
-| 4 | `4_generar_caracteristicas.py` | Comprobación estructural por ventana y extracción de atributos tabulares. |
-| 5 | `5_analizar_train.py` | Análisis de calidad y selección de variables exclusivamente con TRAIN. |
-| 6 | `6_entrenar_regresion_logistica_final.py` | `Pipeline` con escalado y `GridSearchCV` por partidas. |
-| 7 | `7_entrenar_random_forest.py` | `RandomizedSearchCV` con los mismos folds agrupados. |
-| 8 | `8_seleccionar_umbrales_validacion.py` | Umbral de decisión seleccionado con VALIDACIÓN. |
-| 9 | `9_evaluacion_final_test.py` | Evaluación final con TEST y modelos/umbrales fijados. |
-| 10 | `10_interpretar_modelos_y_resultados.py` | Importancias y coeficientes de modelos guardados. |
-
-`demostracion_lectura_cs2cd.py` sirve para inspeccionar algunos campos del CSV de TRAIN de forma **solo lectura** (requiere los CSV de la entrega completa).
-
-### Validación de ventanas: 100 frente a 90,707
-
-El script 2 examinó **100 ventanas como prueba preliminar**. La función de extracción del script 4 comprueba en **cada una de las 90,707 ventanas originales procesadas** que existan 256 filas, 44 columnas y el evento objetivo `attacker_kill` en el tick 223. No debe confundirse esa verificación estructural global con el conjunto completo de diagnósticos preliminares del script 2. El resultado está registrado en `salidas/resumen_generacion_caracteristicas.csv`: se generaron todas las filas esperadas y no se registraron errores de extracción.
-
-### Datos, selección y particiones
-
-Se retuvieron **90,707 ventanas originales** y se excluyeron **127,553 aumentadas**. La partición por partida quedó distribuida en 556 partidas TRAIN, 119 VALIDACIÓN y 119 TEST. La ingeniería de atributos utiliza los ticks **0 a 223** y produce **86 columnas** por fila: 9 metadatos, 74 predictoras candidatas y 3 diagnósticas. El EDA de TRAIN encontró dos predictoras constantes (`victim_health_min` y `victim_health_kill`), que se excluyeron para conservar **72 predictores finales**. Los nombres están en `salidas/regresion_logistica/predictores_finales_72.txt`.
-
-## Resultados obtenidos
-
-Los resultados numéricos provienen de `salidas/evaluacion_final_test/metricas_finales_test.csv`, guardado en el proyecto original.
-
-| Modelo | Umbral seleccionado en VALIDACIÓN | F1 en TEST | Precisión en TEST | Recall en TEST | ROC-AUC en TEST |
-|---|---:|---:|---:|---:|---:|
-| Regresión Logística | 0.67 | 0.605918 | 0.649580 | 0.567756 | 0.843366 |
-| Random Forest | 0.53 | **0.642485** | **0.707102** | **0.588689** | **0.854247** |
-
-- Regresión Logística: 10 combinaciones × 5 folds = **50 ajustes**, mejor `C=1`, `class_weight=balanced`; F1 CV ≈ **0.620078**.
-- Random Forest: espacio de 864 combinaciones, **50** evaluadas × 5 folds = **250 ajustes**; mejor `n_estimators=800`, `max_depth=None`, `max_features=log2`, `min_samples_split=5`, `min_samples_leaf=2`, `class_weight=balanced`; F1 CV ≈ **0.686682**.
-- No se usó Optuna. Los resultados corresponden a esta partición y a las etiquetas del dataset; no demuestran causalidad ni que cada eliminación implicara una trampa activa.
-
-## Archivos del repositorio y entrega completa
-
-- `salidas/`: métricas, configuraciones, gráficos y diagnósticos **ligeros** reproducidos del experimento. Se omiten los CSV voluminosos de predicciones por ventana.
-- `datos/procesado/resumen_particiones.csv`: resumen de particiones; los demás CSV procesados se encuentran en la entrega completa.
-- `modelos/*.joblib`: **no incluidos en GitHub** por tamaño. La entrega completa conserva los modelos serializados, incluido Random Forest (≈610 MB).
-- `requirements.txt`: dependencias fijadas del entorno original; se convirtió de UTF-16 a UTF-8 para facilitar su instalación desde GitHub.
-
-## Ejecución local
-
-En **Windows / PowerShell**, con una versión de Python compatible con las dependencias fijadas:
-
-```powershell
-py -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
+```text
+cs2cd-experimentacion/
+├── scripts/
+│   ├── 01_estudio_original/    # Scripts 1–10; RL, RF y TEST histórico
+│   └── 02_extension_jurado/    # Scripts 11–22; XGBoost y experimentos
+├── docs/
+│   ├── GUIA_METODOLOGICA.md    # Etapas y relación con las secciones del artículo
+│   └── README_DETALLADO.md     # Documentación técnica completa e histórica
+├── datos/
+│   ├── crudo/                  # Documentación de la fuente
+│   └── procesado/              # Datos derivados (CSV grandes ignorados)
+├── salidas/                    # Configuraciones, métricas y gráficas
+├── fuentes/                    # Procedencia del dataset
+├── requirements.txt
+└── requirements-xgboost.txt
 ```
 
-Los scripts 1–4 acceden a la fuente pública mediante Internet; ejecutarlos de nuevo puede requerir tiempo y recursos importantes. Los scripts 5–10 necesitan los CSV y/o modelos de la **entrega completa**, que no están alojados aquí. La búsqueda de Random Forest originalmente consumió varias horas. **No se recomienda ejecutar de nuevo el script 9 sobre TEST**, que ya fue evaluado y dispone de un archivo marcador `TEST_EVALUADO.txt`.
+**Empieza por [GUIA_METODOLOGICA.md](docs/GUIA_METODOLOGICA.md)**. Allí se ordenan los métodos según su papel científico en el artículo, sin confundirlos con el orden cronológico de desarrollo.
 
-**Alcance:** estudio comparativo sobre un dataset etiquetado. Las importancias de características no deben interpretarse como pruebas individuales de trampas.
+## Etapas científicas y archivos principales
+
+| Etapa en la metodología | Archivos |
+|---|---|
+| Obtención, validación y particiones por partida | `scripts/01_estudio_original/1_...` a `5_...` |
+| Regresión Logística y Random Forest | `scripts/01_estudio_original/6_...` y `7_...` |
+| XGBoost (tercer clasificador, extensión posterior) | `scripts/02_extension_jurado/12_entrenar_xgboost.py` |
+| Evaluación y umbrales sobre VALIDACIÓN | Original: `8_seleccionar_umbrales_validacion.py`. Extensión: `13_evaluar_xgboost_validacion.py` |
+| Evaluación histórica sobre TEST | `scripts/01_estudio_original/9_evaluacion_final_test.py` **solo RL y RF, ya ejecutado** |
+| Interpretación, diagnóstico y análisis exploratorio | `10_...` y `11_...`, `14_...` a `22_...` |
+
+## Resultados de referencia
+
+| Clasificador | VALIDACIÓN F1 | VALIDACIÓN recall | Umbral en VALIDACIÓN | TEST histórico |
+|---|---:|---:|---:|---|
+| Regresión Logística | 0.5879 | 0.5743 | 0.67 | Disponible (estudio original) |
+| Random Forest | 0.6332 | 0.5998 | 0.53 | Disponible (estudio original) |
+| XGBoost | 0.6389 | 0.6104 | 0.66 | **No evaluado** |
+
+Estos resultados no implican superioridad estadística. Los experimentos 16–22 sobre TRAIN estudian características, ponderación, umbrales, sobremuestreo y viabilidad de la aumentación; no constituyen una nueva evaluación final independiente.
+
+## Ejecución desde la raíz del repositorio
+
+**Las rutas de lectura/escritura de los scripts son relativas a la raíz del proyecto.** Ejecuta siempre los comandos estando en `cs2cd-experimentacion`.
+
+```cmd
+python scripts/02_extension_jurado/19_comparar_igual_recall_train.py
+python scripts/02_extension_jurado/20_sobremuestreo_progresivo_xgboost_train.py
+python scripts/02_extension_jurado/22_auditar_aug_estratificado_train.py
+```
+
+Los scripts que usan `xgb_estimador.py` lo encuentran en su misma carpeta, y el experimento 22 encuentra el 21 mediante `__file__`.
+
+**No ejecutes de nuevo el script 9:** TEST ya se evaluó y existe `salidas/evaluacion_final_test/TEST_EVALUADO.txt`.
+
+## Fuentes y detalles
+
+- [Guía metodológica y mapa de scripts](docs/GUIA_METODOLOGICA.md)
+- [Descripción histórica de resultados, particiones y experimentos](docs/README_DETALLADO.md)
+- [Procedencia del dataset](fuentes/ORIGEN_DATASET_CS2CD.txt)
+
+Los archivos CSV de entrenamiento/validación, los modelos serializados y las predicciones voluminosas no están incluidos en GitHub. Se conservan localmente o en los entregables originales. Al cambiar de rama, **no borres ni sobrescribas esos datos locales**.
