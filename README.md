@@ -181,3 +181,19 @@ python 20_sobremuestreo_progresivo_xgboost_train.py
 ```
 
 Resultados: `salidas/xgboost/sobremuestreo_train/comparacion_sobremuestreo.csv`, `metricas_por_fold.csv` y `notas_metodologicas.json`. El experimento ejecuta **25 ajustes**. **No es aumento sintético de telemetría**: duplicar ventanas no produce evidencia ni señales nuevas, y no equivale al aumento de los creadores. El dataset público `CS2CD/Context_window_256` incluye archivos con sufijos `_aug*` que nuestros scripts 3 y 4 originales omitieron deliberadamente. Antes de incorporar esas muestras preexistentes será necesario verificar su clave de origen, transformación y agrupación por partida, y añadir solo las correspondientes a TRAIN y al subconjunto de entrenamiento de cada fold. No abrir TEST. No reemplazar los modelos originales.
+
+### Auditoría preliminar de ventanas aumentadas `_aug` (solo TRAIN)
+
+**Hallazgo documental previo a cualquier entrenamiento adicional:** El artículo original [AntiCheatPT](https://arxiv.org/abs/2508.06348) informa que las variantes aumentadas se generan añadiendo ruido gaussiano a las coordenadas X/Y/Z de atacante y víctima, con el mismo ruido por eje y tick. El [código de aumentación publicado por los autores](https://github.com/Pinkvinus/CS2_cheat_detection/blob/main/DataAugmentation/dataaugmentation.py) también revela un detalle importante: `noise_std = 0.01`, recorte individual de cada coordenada al intervalo `[0, 1]` y conversión a `float32`. Por tanto, las distancias relativas **no están garantizadas exactamente**: el recorte puede afectar de manera diferente a los dos jugadores.
+
+El script `4_generar_caracteristicas.py` utiliza **diferencias espaciales relativas, no coordenadas absolutas**, para sus 28 predictores espaciales (`delta_x/y/z` y `distancia_3d`, siete agregados por cada grupo). El resto de los 72 predictores seleccionados se basa en campos distintos de las coordenadas. Como consecuencia, si una versión `_aug` solo modifica posiciones absolutas sin cambiar diferencias, su representación tabular será prácticamente equivalente a la original. **No se debe afirmar que siempre es idéntica sin comprobar el efecto del recorte y la precisión numérica.**
+
+Auditar una muestra de parejas original/`_aug` pertenecientes exclusivamente a TRAIN:
+
+```powershell
+python 21_auditar_aug_cs2cd.py
+```
+
+Requiere conexión a Internet y `datos/procesado/caracteristicas_train.csv`. Lee `CS2CD/Context_window_256` por streaming, descodifica solamente parejas de TRAIN, se detiene tras **20 parejas** o **50 000 registros** y **no entrena** ningún modelo. Es posible configurar `--pares 10 --max-registros 30000` para una primera ejecución más acotada. Los resultados quedan en `salidas/auditoria_aug/pares_auditados.csv`, `errores_auditoria.csv` y `resumen_auditoria.json`. La muestra es consecutiva, **no representativa** y puede incluir solo una clase según el orden del dataset. Solo se compara una variante aumentada por original. No se utilizan VALIDACION ni TEST para ajustar o evaluar.
+
+**Decisión posterior:** Si el efecto de `_aug` en los predictores tabulares es ínfimo, documentar que la aumentación del modelo fuente fue diseñada para entrada secuencial/posicional y que para nuestras características tabulares aporta escasa variabilidad. Si se observan cambios relevantes, diseñar una evaluación adicional con separación estricta por partida y sin mezclar variantes originales/aumentadas entre los folds. No incorporar indiscriminadamente todas las ventanas aumentadas ni abrir TEST.
