@@ -197,3 +197,16 @@ python 21_auditar_aug_cs2cd.py
 Requiere conexión a Internet y `datos/procesado/caracteristicas_train.csv`. Lee `CS2CD/Context_window_256` por streaming, descodifica solamente parejas de TRAIN, se detiene tras **20 parejas** o **50 000 registros** y **no entrena** ningún modelo. Es posible configurar `--pares 10 --max-registros 30000` para una primera ejecución más acotada. Los resultados quedan en `salidas/auditoria_aug/pares_auditados.csv`, `errores_auditoria.csv` y `resumen_auditoria.json`. La muestra es consecutiva, **no representativa** y puede incluir solo una clase según el orden del dataset. Solo se compara una variante aumentada por original. No se utilizan VALIDACION ni TEST para ajustar o evaluar.
 
 **Decisión posterior:** Si el efecto de `_aug` en los predictores tabulares es ínfimo, documentar que la aumentación del modelo fuente fue diseñada para entrada secuencial/posicional y que para nuestras características tabulares aporta escasa variabilidad. Si se observan cambios relevantes, diseñar una evaluación adicional con separación estricta por partida y sin mezclar variantes originales/aumentadas entre los folds. No incorporar indiscriminadamente todas las ventanas aumentadas ni abrir TEST.
+
+### Auditoría estratificada de aumentación (paso posterior al script 21)
+
+**Primer resultado (20 parejas del script 21):** Las 20 parejas originales/`_aug0` pertenecían a la clase positiva, a la misma partida (`cdata_file_0`) y al mismo jugador. En 20/20 no cambiaron los canales no espaciales. Solo 2/20 parejas cambiaron alguna de las 28 características espaciales más de `1e-6`, y 1/20 más de `1e-3`. Este resultado es descriptivo **y no puede extrapolarse por sí solo** a otros jugadores, partidas ni a la clase negativa.
+
+Para evitar depender únicamente del orden del streaming, el script `22_auditar_aug_estratificado_train.py` selecciona **20 partidas por clase**, elige aleatoriamente una ventana original por partida en TRAIN (semilla 42) y busca su versión `_aug0` en CS2CD. Reutiliza la lógica comparativa del script 21. Se requerirá recorrer una parte amplia del dataset remoto para encontrar las claves seleccionadas. No se entrenan modelos ni se leen los Parquet de evaluación externa.
+
+```powershell
+git pull --ff-only origin mejoras-jurado-xgboost
+python 22_auditar_aug_estratificado_train.py
+```
+
+Salidas: `salidas/auditoria_aug_estratificada/resumen_por_clase.csv`, `pares_auditados_estratificados.csv`, `claves_seleccionadas.csv`, `parejas_no_encontradas.csv`, `errores_auditoria.csv` y `notas_metodologicas.json`. Si el dataset no contiene `_aug0` para alguna ventana seleccionada, se registrará como pareja faltante y no se imputarán valores. La muestra garantiza diversidad por partida dentro de cada clase, pero **no representa aleatoriamente la distribución de todas las ventanas**. La auditoría solo establece el impacto observado de las variantes sobre las variables tabulares, no que un modelo temporal se beneficie o deje de beneficiarse del mismo mecanismo.
