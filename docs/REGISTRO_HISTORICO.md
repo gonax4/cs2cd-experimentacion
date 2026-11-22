@@ -1,3 +1,11 @@
+# Registro histórico del proyecto y procedencia de las extensiones
+
+**Documento conservado con propósito de trazabilidad.** El texto siguiente procede de una etapa anterior del repositorio y contiene referencias a rutas **antiguas** de scripts. Para las rutas vigentes consultar [Equivalencias de scripts](EQUIVALENCIAS_SCRIPTS.md), y para el método integrado usar [Guía metodológica](GUIA_METODOLOGICA.md).
+
+La organización del código fue refactorizada. Eso no implica que XGBoost se ejecutara antes que RL/RF ni que la experimentación adicional fuera preespecificada. El conjunto TEST ya fue evaluado en la fase original para RL/RF. Los análisis posteriores corresponden principalmente a TRAIN o VALIDACIÓN.
+
+---
+
 # CS2CD — Experimentación con Regresión Logística y Random Forest
 
 Implementación de una investigación académica para **comparar modelos que identifican patrones asociados a jugadores etiquetados como tramposos en Counter-Strike 2** mediante datos de telemetría. Se evalúan **Regresión Logística** y **Random Forest**; no se afirma que una acción aislada (como un headshot) pruebe una trampa.

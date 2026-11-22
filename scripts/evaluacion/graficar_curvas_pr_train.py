@@ -35,7 +35,7 @@ def leer_y_verificar():
     if not ENTRADA.is_file():
         raise FileNotFoundError(
             f"No existe {ENTRADA}. Ejecuta primero "
-            "python 17_comparar_ponderacion_xgboost_train.py"
+            "python scripts/modelos/comparar_ponderacion_xgboost_train.py"
         )
     df = pd.read_csv(ENTRADA)
     columnas = {"indice_fila", "fold", "etiqueta_real"}

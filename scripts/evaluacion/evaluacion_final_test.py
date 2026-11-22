@@ -1,4 +1,6 @@
 import json
+import runpy
+import sys
 from pathlib import Path
 
 import joblib
@@ -101,6 +103,18 @@ def guardar_matriz(nombre_archivo, titulo, y, pred):
         bbox_inches="tight"
     )
     plt.close(fig)
+
+
+# Modo adicional y separado: no elimina ni reejecuta el TEST histórico RL/RF.
+# Las métricas XGBoost son retrospectivas porque TEST ya fue observado.
+if __name__ == "__main__" and len(sys.argv) > 1:
+    if sys.argv[1:] != ["--xgboost"]:
+        raise ValueError("Opción admitida: --xgboost")
+    runpy.run_path(
+        str(Path(__file__).with_name("evaluar_xgboost_test_retrospectivo.py")),
+        run_name="__main__",
+    )
+    raise SystemExit(0)
 
 
 print("EVALUACIÓN FINAL ÚNICA SOBRE TEST")
