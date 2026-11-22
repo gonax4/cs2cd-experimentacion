@@ -7,6 +7,8 @@ modelos guardados y archivos finales ya producidos.
 
 from pathlib import Path
 import json
+import runpy
+import sys
 
 import joblib
 import matplotlib
@@ -56,6 +58,18 @@ def grafico_horiz_barras(tabla, columna_valor, columna_nombre, titulo, archivo, 
     fig.tight_layout()
     fig.savefig(SALIDA / archivo, dpi=200, bbox_inches='tight')
     plt.close(fig)
+
+
+# Interpretación adicional del tercer clasificador, sin alterar los CSV
+# históricos de RL/RF ni abrir los datos de TEST o VALIDACION.
+if __name__ == "__main__" and len(sys.argv) > 1:
+    if sys.argv[1:] != ["--xgboost"]:
+        raise ValueError("Opción admitida: --xgboost")
+    runpy.run_path(
+        str(Path(__file__).with_name("interpretar_caracteristicas_xgboost.py")),
+        run_name="__main__",
+    )
+    raise SystemExit(0)
 
 
 print('INTERPRETACIÓN DE MODELOS Y RESUMEN DE RESULTADOS')
