@@ -1,71 +1,102 @@
-# CS2CD — Experimentación con Regresión Logística y Random Forest
+# CS2CD — Comparación de Regresión Logística, Random Forest y XGBoost
 
-Implementación de una investigación académica para **comparar modelos que identifican patrones asociados a jugadores etiquetados como tramposos en Counter-Strike 2** mediante datos de telemetría. Se evalúan **Regresión Logística** y **Random Forest**; no se afirma que una acción aislada (como un headshot) pruebe una trampa.
+Repositorio de investigación sobre clasificación de ventanas de telemetría de *Counter-Strike 2* mediante tres clasificadores. La organización sigue las **funciones metodológicas** del estudio revisado, no la fecha en que se desarrolló cada experimento.
 
-> **Avance 2.1 — Seminario de Investigación I.** Este repositorio contiene el **código fuente y las evidencias ligeras**. Los CSV procesados completos, modelos entrenados y otros artefactos voluminosos se entregan **por separado en la carpeta compartida del curso**. No se incluyen ni se sustituyen los Parquet originales.
+> **Rigor de evaluación:** El diseño original evaluó RL y RF sobre TEST. XGBoost se incorporó durante la revisión y se evaluó sobre TRAIN (validación cruzada agrupada) y VALIDACIÓN externa. Se preparó un **modo adicional** para evaluar XGBoost retrospectivamente sobre TEST una única vez, sin reejecutar RL/RF. **Ya fue ejecutado localmente (resultados registrados) y no constituye una prueba independiente ciega**, porque TEST ya se observó durante el estudio original.
 
-## Fuente y acceso a datos
+## Estructura del proyecto
 
-- Dataset público: [CS2CD / Context_window_256 (Hugging Face)](https://huggingface.co/datasets/CS2CD/Context_window_256).
-- El acceso se implementa con `load_dataset("CS2CD/Context_window_256", split="train", streaming=True)` y la lectura de bytes Parquet con `pd.read_parquet(BytesIO(...))`.
-- Cada ventana tiene **256 ticks × 44 variables**. El split original de Hugging Face (`train`) **no** representa la partición TRAIN del experimento.
-- `datos/crudo/README_DATOS_CRUDOS.txt` y `fuentes/ORIGEN_DATASET_CS2CD.txt` documentan la procedencia. La carpeta `datos/crudo` no contiene una descarga permanente del conjunto original.
-
-## Flujo de trabajo
-
-| Orden | Script | Función |
-|---|---|---|
-| 1 | `1_inspeccionar_Dataset.py` | Inspección de la estructura de una ventana original. |
-| 2 | `2_validar_ventanas.py` | Verificación **preliminar de 100 ventanas**, no de todo el conjunto. |
-| 3 | `3_crear_particiones.py` | Exclusión de ventanas aumentadas e índice/particiones agrupadas por partida. |
-| 4 | `4_generar_caracteristicas.py` | Comprobación estructural por ventana y extracción de atributos tabulares. |
-| 5 | `5_analizar_train.py` | Análisis de calidad y selección de variables exclusivamente con TRAIN. |
-| 6 | `6_entrenar_regresion_logistica_final.py` | `Pipeline` con escalado y `GridSearchCV` por partidas. |
-| 7 | `7_entrenar_random_forest.py` | `RandomizedSearchCV` con los mismos folds agrupados. |
-| 8 | `8_seleccionar_umbrales_validacion.py` | Umbral de decisión seleccionado con VALIDACIÓN. |
-| 9 | `9_evaluacion_final_test.py` | Evaluación final con TEST y modelos/umbrales fijados. |
-| 10 | `10_interpretar_modelos_y_resultados.py` | Importancias y coeficientes de modelos guardados. |
-
-`demostracion_lectura_cs2cd.py` sirve para inspeccionar algunos campos del CSV de TRAIN de forma **solo lectura** (requiere los CSV de la entrega completa).
-
-### Validación de ventanas: 100 frente a 90,707
-
-El script 2 examinó **100 ventanas como prueba preliminar**. La función de extracción del script 4 comprueba en **cada una de las 90,707 ventanas originales procesadas** que existan 256 filas, 44 columnas y el evento objetivo `attacker_kill` en el tick 223. No debe confundirse esa verificación estructural global con el conjunto completo de diagnósticos preliminares del script 2. El resultado está registrado en `salidas/resumen_generacion_caracteristicas.csv`: se generaron todas las filas esperadas y no se registraron errores de extracción.
-
-### Datos, selección y particiones
-
-Se retuvieron **90,707 ventanas originales** y se excluyeron **127,553 aumentadas**. La partición por partida quedó distribuida en 556 partidas TRAIN, 119 VALIDACIÓN y 119 TEST. La ingeniería de atributos utiliza los ticks **0 a 223** y produce **86 columnas** por fila: 9 metadatos, 74 predictoras candidatas y 3 diagnósticas. El EDA de TRAIN encontró dos predictoras constantes (`victim_health_min` y `victim_health_kill`), que se excluyeron para conservar **72 predictores finales**. Los nombres están en `salidas/regresion_logistica/predictores_finales_72.txt`.
-
-## Resultados obtenidos
-
-Los resultados numéricos provienen de `salidas/evaluacion_final_test/metricas_finales_test.csv`, guardado en el proyecto original.
-
-| Modelo | Umbral seleccionado en VALIDACIÓN | F1 en TEST | Precisión en TEST | Recall en TEST | ROC-AUC en TEST |
-|---|---:|---:|---:|---:|---:|
-| Regresión Logística | 0.67 | 0.605918 | 0.649580 | 0.567756 | 0.843366 |
-| Random Forest | 0.53 | **0.642485** | **0.707102** | **0.588689** | **0.854247** |
-
-- Regresión Logística: 10 combinaciones × 5 folds = **50 ajustes**, mejor `C=1`, `class_weight=balanced`; F1 CV ≈ **0.620078**.
-- Random Forest: espacio de 864 combinaciones, **50** evaluadas × 5 folds = **250 ajustes**; mejor `n_estimators=800`, `max_depth=None`, `max_features=log2`, `min_samples_split=5`, `min_samples_leaf=2`, `class_weight=balanced`; F1 CV ≈ **0.686682**.
-- No se usó Optuna. Los resultados corresponden a esta partición y a las etiquetas del dataset; no demuestran causalidad ni que cada eliminación implicara una trampa activa.
-
-## Archivos del repositorio y entrega completa
-
-- `salidas/`: métricas, configuraciones, gráficos y diagnósticos **ligeros** reproducidos del experimento. Se omiten los CSV voluminosos de predicciones por ventana.
-- `datos/procesado/resumen_particiones.csv`: resumen de particiones; los demás CSV procesados se encuentran en la entrega completa.
-- `modelos/*.joblib`: **no incluidos en GitHub** por tamaño. La entrega completa conserva los modelos serializados, incluido Random Forest (≈610 MB).
-- `requirements.txt`: dependencias fijadas del entorno original; se convirtió de UTF-16 a UTF-8 para facilitar su instalación desde GitHub.
-
-## Ejecución local
-
-En **Windows / PowerShell**, con una versión de Python compatible con las dependencias fijadas:
-
-```powershell
-py -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
+```text
+cs2cd-experimentacion/
+├── scripts/
+│   ├── datos/               # Ingesta, particiones, características, desbalance, auditoría _aug
+│   ├── modelos/             # RL, RF, XGBoost, ponderación, ablación, sobremuestreo
+│   └── evaluacion/          # Umbrales, validación, TEST histórico, errores, curvas PR
+├── docs/
+│   ├── GUIA_METODOLOGICA.md # Metodología integrada y flechas del diagrama
+│   ├── EQUIVALENCIAS_SCRIPTS.md  # Rutas anteriores y nuevas
+│   └── REGISTRO_HISTORICO.md     # Procedencia de la extensión y advertencias
+├── datos/                   # Datos originales documentados y derivados
+├── salidas/                 # Métricas, configuraciones y figuras
+├── fuentes/                 # Documentación de procedencia de CS2CD
+├── requirements.txt
+└── requirements-xgboost.txt
 ```
 
-Los scripts 1–4 acceden a la fuente pública mediante Internet; ejecutarlos de nuevo puede requerir tiempo y recursos importantes. Los scripts 5–10 necesitan los CSV y/o modelos de la **entrega completa**, que no están alojados aquí. La búsqueda de Random Forest originalmente consumió varias horas. **No se recomienda ejecutar de nuevo el script 9 sobre TEST**, que ya fue evaluado y dispone de un archivo marcador `TEST_EVALUADO.txt`.
+El código mantiene sus cálculos y sus rutas de entrada/salida relativas a la raíz del repositorio. **La reorganización no reentrenó los modelos.** Posteriormente, XGBoost se evaluó retrospectivamente una sola vez en TEST, conservando los resultados históricos de RL/RF.
 
-**Alcance:** estudio comparativo sobre un dataset etiquetado. Las importancias de características no deben interpretarse como pruebas individuales de trampas.
+## Fases del diagrama metodológico
+
+1. **Preparación:** Ingesta de ventanas originales, segmento 0–223, particiones por partida, ingeniería de características y selección de 72 predictores con TRAIN.
+2. **Entrenamiento y ajuste:** RL, RF y XGBoost, con los mismos 5 folds agrupados por partida.
+3. **Validación y umbrales:** Modelos y pipelines aplicados a VALIDACIÓN, evaluación de precisión, recall y F1, y selección de umbrales.
+4. **Evaluación final:** RL y RF sobre TEST (evaluación histórica), más un **modo retrospectivo adicional** para XGBoost con el umbral fijado en VALIDACIÓN. La evaluación retrospectiva de XGBoost **ya fue ejecutada** y sus resultados se registraron. No recupera la independencia estadística de TEST.
+
+**Análisis complementarios transversales:** Desbalance, falsos negativos, subgrupos, ponderación, ablación, curvas PR, sobremuestreo y auditoría de aumentación. Se conectan a TRAIN o VALIDACIÓN según el experimento y **no** a TEST como un proceso secuencial posterior.
+
+## Archivos principales
+
+| Propósito | Archivo |
+|---|---|
+| Partición por partida | `scripts/datos/crear_particiones.py` |
+| Ingeniería de características | `scripts/datos/generar_caracteristicas.py` |
+| Selección y análisis de predictores | `scripts/datos/analizar_train.py` |
+| Regresión Logística | `scripts/modelos/entrenar_regresion_logistica_final.py` |
+| Random Forest | `scripts/modelos/entrenar_random_forest.py` |
+| XGBoost | `scripts/modelos/entrenar_xgboost.py` |
+| Validación RL/RF | `scripts/evaluacion/seleccionar_umbrales_validacion.py` |
+| Validación XGBoost | `scripts/modelos/evaluar_xgboost_validacion.py` |
+| Evaluación histórica TEST (RL/RF) | `scripts/evaluacion/evaluacion_final_test.py` sin argumentos |
+| Evaluación retrospectiva XGBoost sobre TEST | `scripts/evaluacion/evaluacion_final_test.py --xgboost`, que utiliza `evaluar_xgboost_test_retrospectivo.py` |
+| Interpretación de variables RL y RF | `scripts/evaluacion/interpretar_modelos_y_resultados.py` |
+| Interpretación de variables XGBoost | `scripts/evaluacion/interpretar_modelos_y_resultados.py --xgboost` |
+| Experimentos complementarios | Archivos de `scripts/modelos/`, `scripts/evaluacion/` y `scripts/datos/` |
+
+## Ejecución desde la raíz del repositorio
+
+```cmd
+python scripts/evaluacion/graficar_curvas_pr_train.py
+python scripts/evaluacion/comparar_igual_recall_train.py
+python scripts/datos/auditar_aug_estratificado_train.py
+python scripts/evaluacion/interpretar_modelos_y_resultados.py --xgboost
+```
+
+Los scripts que entrenan XGBoost y el módulo `xgb_estimador.py` permanecen juntos en `scripts/modelos/`. La auditoría estratificada y su módulo de auditoría están juntos en `scripts/datos/`. Los archivos locales grandes de entrenamiento, modelos serializados y predicciones no se suben automáticamente al repositorio.
+
+**TEST ya fue utilizado para los tres modelos:** El análisis histórico de RL/RF permanece protegido por `salidas/evaluacion_final_test/TEST_EVALUADO.txt` y el retrospectivo de XGBoost tiene el marcador `salidas/evaluacion_xgboost_test_retrospectiva/TEST_XGBOOST_EVALUADO.txt` en el entorno local. **No volver a ejecutar TEST para optimizar o repetir comparaciones.**
+
+Comando utilizado en la ejecución retrospectiva de XGBoost (registro histórico, **no volver a ejecutar**):
+
+```cmd
+python scripts/evaluacion/evaluacion_final_test.py --xgboost
+```
+
+**Advertencia:** El análisis sigue siendo **retrospectivo**: Los resultados de TEST del estudio inicial ya eran conocidos antes de desarrollar el tercer modelo.
+
+## Documentación
+
+- [Guía metodológica unificada](docs/GUIA_METODOLOGICA.md)
+- [Resultados TEST de los tres modelos](docs/RESULTADOS_TEST_TRES_MODELOS.md)
+- [Mapa de nombres y rutas anteriores](docs/EQUIVALENCIAS_SCRIPTS.md)
+- [Registro histórico y limitaciones](docs/REGISTRO_HISTORICO.md)
+- [Dataset fuente](https://huggingface.co/datasets/CS2CD/Context_window_256)
+
+## Comparación observada sobre TEST
+
+| Modelo | Umbral | F1 | Recall | Precisión | ROC-AUC |
+|---|---:|---:|---:|---:|---:|
+| RL (histórico) | 0,67 | 0,605918 | 0,567756 | 0,649580 | 0,843366 |
+| RF (histórico) | 0,53 | 0,642485 | 0,588689 | 0,707102 | 0,854247 |
+| XGBoost (**retrospectivo**) | 0,66 | **0,656064** | **0,605949** | **0,715215** | **0,868644** |
+
+XGBoost tuvo el mayor F1 observado, pero la comparación no constituye una prueba independiente ciega ni demuestra significancia estadística. [Ver matriz de confusión, procedencia y limitaciones](docs/RESULTADOS_TEST_TRES_MODELOS.md).
+
+## Interpretación de características en los tres modelos
+
+La RL permite estudiar **coeficientes** (signo y magnitud condicionados al escalado), RF informa importancia **MDI** (disminución media de impureza) y XGBoost ahora informa **ganancia total relativa** (`total_gain`), ganancia media y cantidad de splits. El análisis de XGBoost utiliza el **modelo ya entrenado**, sus 72 predictores y los mismos cinco grupos utilizados en RF. No abre TEST ni VALIDACIÓN.
+
+```cmd
+python scripts/evaluacion/interpretar_modelos_y_resultados.py --xgboost
+```
+
+Genera `salidas/interpretacion_modelos/importancias_xgboost.csv`, `importancias_grupos_xgboost.csv`, `top20_importancias_xgboost.png` y `notas_importancias_xgboost.json`. **Estas tres medidas de importancia no comparten una escala ni tienen interpretación causal:** pueden compararse descriptivamente los rankings, pero no afirmar que los coeficientes, MDI y `total_gain` miden lo mismo.
