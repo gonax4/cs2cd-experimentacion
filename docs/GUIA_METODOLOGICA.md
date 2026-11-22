@@ -69,7 +69,7 @@ Los modelos **RL y RF** se evaluaron históricamente sobre TEST aplicando sus hi
 
 **XGBoost puede incluirse en esta fase como una evaluación adicional retrospectiva**, usando el modelo `modelos/xgboost_best_pipeline.joblib` ya entrenado y el umbral 0,66 seleccionado previamente en VALIDACIÓN. El modo `python scripts/evaluacion/evaluacion_final_test.py --xgboost` **ya fue ejecutado una sola vez**. El detalle de los resultados se encuentra en [RESULTADOS_TEST_TRES_MODELOS.md](RESULTADOS_TEST_TRES_MODELOS.md). Es independiente del código de RL/RF: No altera sus archivos históricos y escribe en `salidas/evaluacion_xgboost_test_retrospectiva/`. Dado que TEST ya era conocido en el desarrollo original, **no debe presentarse esa nueva comparación como confirmación independiente** ni utilizarse para ajustar XGBoost o seleccionar estrategias nuevas. XGBoost obtuvo F1 **0,656064**, recall **0,605949**, precisión **0,715215** y ROC-AUC **0,868644** en TEST, con 657 falsos positivos y 1 073 falsos negativos. Estas métricas son retrospectivas y descriptivas.
 
-La interpretación de importancia de características procede de los modelos guardados, no de calcular importancias a partir de las métricas de TEST. Archivo: `scripts/evaluacion/interpretar_modelos_y_resultados.py`.
+La interpretación de características procede de los modelos guardados, no de calcular importancias a partir de las métricas de TEST. **RL:** Coeficientes del pipeline (con signo y precaución por escalado). **RF:** Importancias MDI. **XGBoost:** Ganancia total relativa (`total_gain`), ganancia media y frecuencia de uso en divisiones de árboles. Los archivos correspondientes son `scripts/evaluacion/interpretar_modelos_y_resultados.py` y `interpretar_caracteristicas_xgboost.py`. Esta última rutina se activa con `--xgboost`, reutiliza los 72 predictores y los grupos definidos para RF, y no consulta TEST ni VALIDACIÓN. Los valores absolutos **no son directamente comparables entre métodos**.
 
 ## Análisis metodológicos complementarios (transversales)
 
@@ -103,7 +103,7 @@ Estos procedimientos complementan la metodología, **no forman una fase secuenci
 6. Desde el resultado de umbrales, **RL/RF** continúan a TEST histórico. **XGBoost** tiene una rama retrospectiva adicional ya ejecutada con su umbral de VALIDACIÓN fijado (0,66).
 7. **TEST procesado + RL/RF fijados → Métricas históricas**. Una segunda rama, marcada como **retrospectiva**, une TEST con el modelo XGBoost ya congelado, sin modificar los resultados anteriores.
 8. Del entrenamiento XGBoost y las predicciones de TRAIN/VALIDACIÓN salen **flechas discontinuas** a los análisis complementarios. No salen de TEST.
-9. **Análisis de importancia → Modelos entrenados**, no «métricas TEST → importancia».
+9. **Análisis de importancia de RL, RF y XGBoost → Modelos entrenados**, no «métricas TEST → importancia». El ranking de XGBoost se calcula mediante `total_gain`, no a partir del desempeño sobre TEST.
 
 El esquema integrado es una presentación lógica y metodológica del trabajo terminado, no una afirmación de que todas las decisiones estaban preespecificadas desde el principio.
 
@@ -115,6 +115,7 @@ Ejecutar siempre desde la raíz del repositorio:
 python scripts/evaluacion/graficar_curvas_pr_train.py
 python scripts/evaluacion/comparar_igual_recall_train.py
 python scripts/datos/auditar_aug_estratificado_train.py
+python scripts/evaluacion/interpretar_modelos_y_resultados.py --xgboost
 ```
 
 Los scripts de XGBoost y `xgb_estimador.py` permanecen juntos dentro de `scripts/modelos`. Las rutinas de auditoría 21/22 están juntas dentro de `scripts/datos`. Los CSV de `datos/procesado/`, los modelos en `modelos/` y los resultados en `salidas/` **mantienen sus rutas anteriores**.
@@ -130,3 +131,13 @@ Para la trazabilidad, consultar `docs/REGISTRO_HISTORICO.md` y `docs/EQUIVALENCI
 | XGBoost | Retrospectiva | 0,66 | **0,656064** | **0,605949** | **0,715215** |
 
 La comparación de los tres modelos sobre las mismas 13 221 ventanas de TEST ya se ejecutó. Sin embargo, el conocimiento previo del TEST histórico impide tratar el análisis agregado como una nueva confirmación independiente ciega. No utilizar estas métricas para modificar el diseño experimental. [Detalles y procedencia](RESULTADOS_TEST_TRES_MODELOS.md).
+
+### Análisis de características de XGBoost: Ejecución adicional
+
+Se añadió la interpretación nativa del tercer clasificador para que la fase 4 incluya **tres análisis de características**: Coeficientes de RL, MDI de RF y ganancia total relativa de XGBoost. Los archivos se generan ejecutando:
+
+```cmd
+python scripts/evaluacion/interpretar_modelos_y_resultados.py --xgboost
+```
+
+Este comando **no reentrena**, no lee TEST ni VALIDACIÓN y no altera los CSV de interpretación de RL y RF. Guarda 72 importancias (incluyendo ceros para atributos no usados), agregado por grupo, gráfico top-20 y notas de interpretación en `salidas/interpretacion_modelos/`. Hasta ejecutar el comando en el entorno con el modelo serializado no existen valores numéricos nuevos de importancia de XGBoost para reportar. Su métrica `total_gain` describe contribuciones internas a la reducción del objetivo del modelo, no efectos causales, y no es equivalente a MDI de RF o coeficientes de RL.
