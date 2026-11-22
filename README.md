@@ -48,6 +48,8 @@ El código mantiene sus cálculos y sus rutas de entrada/salida relativas a la r
 | Validación XGBoost | `scripts/modelos/evaluar_xgboost_validacion.py` |
 | Evaluación histórica TEST (RL/RF) | `scripts/evaluacion/evaluacion_final_test.py` sin argumentos |
 | Evaluación retrospectiva XGBoost sobre TEST | `scripts/evaluacion/evaluacion_final_test.py --xgboost`, que utiliza `evaluar_xgboost_test_retrospectivo.py` |
+| Interpretación de variables RL y RF | `scripts/evaluacion/interpretar_modelos_y_resultados.py` |
+| Interpretación de variables XGBoost | `scripts/evaluacion/interpretar_modelos_y_resultados.py --xgboost` |
 | Experimentos complementarios | Archivos de `scripts/modelos/`, `scripts/evaluacion/` y `scripts/datos/` |
 
 ## Ejecución desde la raíz del repositorio
@@ -56,6 +58,7 @@ El código mantiene sus cálculos y sus rutas de entrada/salida relativas a la r
 python scripts/evaluacion/graficar_curvas_pr_train.py
 python scripts/evaluacion/comparar_igual_recall_train.py
 python scripts/datos/auditar_aug_estratificado_train.py
+python scripts/evaluacion/interpretar_modelos_y_resultados.py --xgboost
 ```
 
 Los scripts que entrenan XGBoost y el módulo `xgb_estimador.py` permanecen juntos en `scripts/modelos/`. La auditoría estratificada y su módulo de auditoría están juntos en `scripts/datos/`. Los archivos locales grandes de entrenamiento, modelos serializados y predicciones no se suben automáticamente al repositorio.
@@ -87,3 +90,13 @@ python scripts/evaluacion/evaluacion_final_test.py --xgboost
 | XGBoost (**retrospectivo**) | 0,66 | **0,656064** | **0,605949** | **0,715215** | **0,868644** |
 
 XGBoost tuvo el mayor F1 observado, pero la comparación no constituye una prueba independiente ciega ni demuestra significancia estadística. [Ver matriz de confusión, procedencia y limitaciones](docs/RESULTADOS_TEST_TRES_MODELOS.md).
+
+## Interpretación de características en los tres modelos
+
+La RL permite estudiar **coeficientes** (signo y magnitud condicionados al escalado), RF informa importancia **MDI** (disminución media de impureza) y XGBoost ahora informa **ganancia total relativa** (`total_gain`), ganancia media y cantidad de splits. El análisis de XGBoost utiliza el **modelo ya entrenado**, sus 72 predictores y los mismos cinco grupos utilizados en RF. No abre TEST ni VALIDACIÓN.
+
+```cmd
+python scripts/evaluacion/interpretar_modelos_y_resultados.py --xgboost
+```
+
+Genera `salidas/interpretacion_modelos/importancias_xgboost.csv`, `importancias_grupos_xgboost.csv`, `top20_importancias_xgboost.png` y `notas_importancias_xgboost.json`. **Estas tres medidas de importancia no comparten una escala ni tienen interpretación causal:** pueden compararse descriptivamente los rankings, pero no afirmar que los coeficientes, MDI y `total_gain` miden lo mismo.
